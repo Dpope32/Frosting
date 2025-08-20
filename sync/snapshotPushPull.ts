@@ -249,10 +249,7 @@ export const pullLatestSnapshot = async (): Promise<void> => {
 
     let plain: Record<string, unknown>;
     try {
-      const decryptStartTime = Date.now();
       const compressedString = decryptSnapshot(cipher, key); 
-      const decryptTime = Date.now() - decryptStartTime;
-      const decompressStartTime = Date.now();
       const binaryString = atob(compressedString);
       const compressed = new Uint8Array(binaryString.length);
       for (let i = 0; i < binaryString.length; i++) {
@@ -261,9 +258,6 @@ export const pullLatestSnapshot = async (): Promise<void> => {
       
       const decompressed = pako.inflate(compressed, { to: 'string' });
       plain = JSON.parse(decompressed);
-      const decompressTime = Date.now() - decompressStartTime;
-      
-      addSyncLog(`🔍 Decrypt took: ${decryptTime}ms, Decompress took: ${decompressTime}ms`, 'info');
       
     } catch (err) {
       if (debug) {

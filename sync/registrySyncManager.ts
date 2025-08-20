@@ -69,17 +69,6 @@ export const exportEncryptedState = async (allStates: Record<string, any>): Prom
     }
   });
   
-  // Log store size breakdown for largest stores
-  const largestStores = Object.entries(storeBreakdown)
-    .sort(([,a], [,b]) => b - a)
-    .slice(0, 3)
-    .map(([store, size]) => `${store}=${(size/1024).toFixed(1)}KB`)
-    .join(', ');
-  
-  const totalMB = (totalSize / 1024 / 1024).toFixed(2);
-  addSyncLog(`Total snapshot size: ${totalMB}MB`, 'info');
-  addSyncLog(`📊 [EXPORT] Largest stores: ${largestStores}`, 'info');
-
   if (allStates.tasks?.tasks) {
     const tasks = Object.values(allStates.tasks.tasks) as any[];
     const today = format(new Date(), 'yyyy-MM-dd'); 
@@ -124,28 +113,12 @@ export const exportEncryptedState = async (allStates: Record<string, any>): Prom
         return btoa(binary);
       };
       
-      // PERFORMANCE TIMING: Break down export phases
-      const stringifyTimer = Date.now();
       const jsonString = JSON.stringify(allStates);
-      const stringifyTime = Date.now() - stringifyTimer;
-      addSyncLog(`📝 [EXPORT] JSON.stringify took ${stringifyTime}ms for ${(jsonString.length/1024).toFixed(1)}KB`, stringifyTime > 500 ? 'warning' : 'verbose');
-      
-      const compressTimer = Date.now();
       const compressed = pako.deflate(jsonString); // Returns Uint8Array
-      const compressTime = Date.now() - compressTimer;
-      addSyncLog(`🗜️ [EXPORT] Compression took ${compressTime}ms`, compressTime > 500 ? 'warning' : 'verbose');
-      
-      const encodeTimer = Date.now();
       const compressedString = uint8ArrayToBase64(compressed);
-      const encodeTime = Date.now() - encodeTimer;
-      addSyncLog(`🔤 [EXPORT] Base64 encoding took ${encodeTime}ms`, encodeTime > 100 ? 'warning' : 'verbose');
-      
-      const encryptTimer = Date.now();
       const cipher = encryptSnapshot(compressedString, key);
-      const encryptTime = Date.now() - encryptTimer;
-      addSyncLog(`🔐 [EXPORT] Encryption took ${encryptTime}ms`, encryptTime > 200 ? 'warning' : 'verbose');
       
-      addSyncLog(`Compression: ${(jsonString.length/1024).toFixed(1)}KB → ${(compressed.length/1024).toFixed(1)}KB (${((compressed.length/jsonString.length)*100).toFixed(1)}% of original)`, 'info');
+      addSyncLog(`Pako Compression: ${(jsonString.length/1024).toFixed(1)}KB → ${(compressed.length/1024).toFixed(1)}KB (${((compressed.length/jsonString.length)*100).toFixed(1)}% of original)`, 'info');
           
     // PERFORMANCE TIMING: File write operation
     const writeTimer = Date.now();
@@ -161,13 +134,7 @@ export const exportEncryptedState = async (allStates: Record<string, any>): Prom
         encoding: FileSystem.EncodingType.UTF8,
       });
     }
-    const writeTime = Date.now() - writeTimer;
-    addSyncLog(`💾 [EXPORT] File write took ${writeTime}ms`, writeTime > 500 ? 'warning' : 'verbose');
-    
-    // FINAL EXPORT TIMING
-    const totalExportTime = Date.now() - exportTimer;
-    addSyncLog(`⏱️ [EXPORT] Total export phase took ${totalExportTime}ms`, totalExportTime > 2000 ? 'warning' : 'success');
-    
+
     Sentry.addBreadcrumb({
       category: 'sync',
       message: 'Encrypted state exported',

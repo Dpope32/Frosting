@@ -9,15 +9,9 @@ export const useAuthCheck = () => {
   
   useEffect(() => {
     const trimmed = username?.trim() || ''
-    
     if (!trimmed) {
       addSyncLog('⚠️ No username set for sync verification', 'warning')
       return
     }
-    
-    const isPremium = premium === true
-    const status = isPremium ? 'premium user' : 'non-premium user'
-    
-    addSyncLog(`🔐 Auth check: ${trimmed} verified as ${status}`, isPremium ? 'success' : 'info')
   }, [username, premium])
 }

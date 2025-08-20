@@ -124,7 +124,6 @@ export const usePortfolioStore = create<PortfolioState>()(
       
           // FIXED: Proper sync with deletion support
           if (syncedData.portfolioHoldings && Array.isArray(syncedData.portfolioHoldings)) {
-            addSyncLog(`Syncing ${syncedData.portfolioHoldings.length} holdings from sync with ${currentPortfolioData.length} local holdings`, 'info');
             
             // Create maps for easy lookup
             const currentHoldingsMap = new Map(

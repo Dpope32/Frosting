@@ -186,10 +186,6 @@ cleanupApptEvents: () => {
         const savedKB = ((originalSize - newSize) / 1024).toFixed(1);
         addSyncLog(`💾 Storage saved: ${savedKB}KB`, 'success');
       } catch(e) {/* ignore */}
-    } else {
-      try {
-        addSyncLog(`✅ No test events found - calendar is clean`, 'info');
-      } catch(e) {/* ignore */}
     }
     
     return { events: cleanedEvents };
@@ -206,14 +202,12 @@ cleanupApptEvents: () => {
             const nonDeviceEvents = state.events.filter(
               (event) => !event.id.startsWith('device-')
             )
-            addSyncLog(`Synced ${appEvents.length} device calendar events.`, 'info')
             return {
               events: [...nonDeviceEvents, ...appEvents],
             }
           })
         } catch (error) {
           console.error('Failed to sync device calendar events:', error)
-            addSyncLog('Failed to sync device calendar events', 'error')
         }
       },
 
@@ -282,7 +276,6 @@ cleanupApptEvents: () => {
 
       syncBirthdays: (newContactId) => {
         const startTime = performance.now()
-        addSyncLog('🔍 [CalendarStore] syncBirthdays start', 'verbose')
         
         // First, do the fast synchronous work to update events immediately
         const syncResult = set((state) => {
@@ -290,9 +283,6 @@ cleanupApptEvents: () => {
             const contacts = usePeopleStore.getState().contacts as Record<string, Person>
             const currentYear = new Date().getFullYear()
             const contactsToSync = newContactId ? { [newContactId]: contacts[newContactId] } : contacts
-            
-            addSyncLog(`[CalendarStore] Processing ${Object.keys(contactsToSync).length} contacts for birthday sync`, 'info')
-            
             const nonBirthdayEvents = state.events.filter(
               (event) => event.type !== 'birthday' || (newContactId && event.personId !== newContactId)
             )
@@ -300,8 +290,6 @@ cleanupApptEvents: () => {
             const years = Array.from({ length: 10 }, (_, i) => currentYear + i)
             const contactsWithBirthdays = Object.values(contactsToSync).filter((person: Person) => person.birthday)
             const birthdayEvents: CalendarEvent[] = []
-            
-            addSyncLog(`[CalendarStore] Found ${contactsWithBirthdays.length} contacts with birthdays`, 'info')
             
             // Generate birthday events (this is fast)
             contactsWithBirthdays.forEach((person: Person) => {
@@ -593,10 +581,6 @@ cleanupApptEvents: () => {
           
           if (removedCount > 0) {
             addSyncLog(`🧹 PREVENTIVE CLEANUP: Removed ${removedCount} test/duplicate events before processing`, 'success');
-            addSyncLog(`📉 Calendar size reduced from ${originalLength} to ${cleanedLength} events before hydration`, 'info');
-            
-            const savedKB = ((removedCount * 200) / 1024).toFixed(1); // Estimate 200 bytes per event
-            addSyncLog(`💾 Prevented processing: ~${savedKB}KB`, 'success');
           }
           // Add your requested logging code here - FIXED VERSION
           addSyncLog(`🔍 [CalendarStore] Incoming events breakdown:`, 'info', 
@@ -616,21 +600,6 @@ cleanupApptEvents: () => {
             ).map(([k,v]) => `${k}=${v}`).join(', ')}`
           );
 
-          // Log events with same title
-          const titleCounts = (syncedData.events || []).reduce((acc, e) => {
-            acc[e.title] = (acc[e.title] || 0) + 1;
-            return acc;
-          }, {} as Record<string, number>);
-
-          const duplicateTitles = Object.entries(titleCounts).filter(([_, count]) => count > 10);
-          if (duplicateTitles.length > 0) {
-            addSyncLog(`🚨 [CalendarStore] Duplicate title detected:`, 'warning',
-              duplicateTitles.map(([title, count]) => `"${title}": ${count} events`).join(', ')
-            );
-          }
-
-          addSyncLog(`🔍 [CalendarStore] Total events in sync: ${syncedData.events.length}`, 'info');
-          
           // Date distribution analysis
           const today = new Date();
           const currentMonth = today.getFullYear() * 12 + today.getMonth();
@@ -687,22 +656,6 @@ cleanupApptEvents: () => {
               });
             }
           });
-          
-          addSyncLog(`📅 Date ranges: Past=${dateRanges.past}, Current=${dateRanges.current}, Next12=${dateRanges.future12}, Far=${dateRanges.farFuture}`, 'warning');
-          addSyncLog(`🎯 Event sources: Device=${eventSources.device}, App=${eventSources.app}, Unknown=${eventSources.unknown}`, 'info');
-          addSyncLog(`💀 Event status: Active=${eventStatus.active}, Deleted=${eventStatus.deleted}`, 'info');
-          
-          if (unknownEvents.length > 0) {
-            addSyncLog(`❓ First 10 unknown events: ${JSON.stringify(unknownEvents.slice(0, 10))}`, 'warning');
-            addSyncLog(`❓ Last 10 unknown events: ${JSON.stringify(unknownEvents.slice(-10))}`, 'warning');
-          }
-          
-          if (largeEvents.length > 0) {
-            addSyncLog(`📏 Large events (>1KB): ${JSON.stringify(largeEvents.slice(0, 5))}`, 'warning');
-          }
-          
-          const eventsSize = JSON.stringify(syncedData.events).length;
-          addSyncLog(`🔍 [CalendarStore] Events data size: ${(eventsSize/1024).toFixed(1)}KB`, 'warning');
         }
         
         const currentSyncEnabledState = get().isSyncEnabled
@@ -758,18 +711,8 @@ cleanupApptEvents: () => {
             }
           }
           
-          addSyncLog(`Calendar events hydrated: ${itemsAddedCount} added, ${itemsMergedCount} merged, ${itemsSkippedDevice} device events skipped. Total events: ${mergedEventsArray.length}`, 'success')
            return { events: mergedEventsArray }
         })
-        
-        // AUTO-CLEANUP: Remove any local "Appt" events that survived sync
-        setTimeout(() => {
-          try {
-            get().cleanupApptEvents();
-          } catch (error) {
-            addSyncLog('Error during auto-cleanup of Appt events', 'error');
-          }
-        }, 100);
       },
     }),
     {
