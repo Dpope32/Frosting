@@ -29,8 +29,8 @@ export const generateSyncKey = async (): Promise<string> => {
     return storedDeviceId;
   }
   
-  // If no stored ID (fallback), create a new one using your existing generateRandomKey function
-  // Fix Platform.Version for web compatibility
+  // If no stored ID (fallback), create a new one using existing generateRandomKey function
+  // Fix Platform.Version for web compatibility since it's not available on web
   const platformVersion = Platform.OS === 'web' ? 'browser' : Platform.Version;
   const deviceInfo = Platform.OS + '-' + platformVersion;
   const timestamp = Date.now().toString(36);

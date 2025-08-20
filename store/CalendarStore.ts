@@ -12,13 +12,6 @@ import { getDeviceCalendarEvents, convertToAppCalendarEvents } from '@/services'
 import { addSyncLog } from '@/components/sync'
 import * as Notifications from 'expo-notifications'
 
-let debug = true; // Enable debug logging
-const getAddSyncLog = () => {
-  if (debug) {
-    return require('@/components/sync/syncUtils').addSyncLog;
-  }
-  return () => {};
-}
 export interface CalendarEvent {
   id: string
   date: string
@@ -72,7 +65,7 @@ export const useCalendarStore = create<CalendarState>()(
         }
         set((state) => ({ events: [...state.events, newEvent] }))
         try {
-          getAddSyncLog()(`Calendar event added locally: ${newEvent.title}`, 'info')
+          addSyncLog(`Calendar event added locally: ${newEvent.title}`, 'info')
         } catch(e) {/* ignore */}
       },
 
@@ -85,7 +78,7 @@ export const useCalendarStore = create<CalendarState>()(
         }))
         set((state) => ({ events: [...state.events, ...newEvents] }))
         try {
-          getAddSyncLog()(`Added ${newEvents.length} calendar events locally.`, 'info')
+          addSyncLog(`Added ${newEvents.length} calendar events locally.`, 'info')
         } catch(e) {/* ignore */}
       },
 
@@ -96,7 +89,7 @@ export const useCalendarStore = create<CalendarState>()(
           ),
         }))
         try {
-          getAddSyncLog()(`Calendar event updated locally: ID ${id}`, 'info')
+          addSyncLog(`Calendar event updated locally: ID ${id}`, 'info')
         } catch(e) {/* ignore */}
       },
 
@@ -105,7 +98,7 @@ export const useCalendarStore = create<CalendarState>()(
           events: state.events.filter((event) => event.id !== id),
         }))
         try {
-          getAddSyncLog()(`Calendar event deleted locally: ID ${id}`, 'info')
+          addSyncLog(`Calendar event deleted locally: ID ${id}`, 'info')
         } catch(e) {/* ignore */}
       },
 
@@ -125,47 +118,83 @@ export const useCalendarStore = create<CalendarState>()(
       clearAllEvents: () => {
         set({ events: [] })
         try {
-          getAddSyncLog()('All calendar events cleared locally', 'info')
+          addSyncLog('All calendar events cleared locally', 'info')
         } catch(e) {/* ignore */}
       },
 
       // ONE-TIME CLEANUP FUNCTION: Remove all "Appt" events
-      cleanupApptEvents: () => {
-        set((state) => {
-          const originalLength = state.events.length;
-          const apptEvents = state.events.filter(event => 
-            event.title === 'Appt' || event.title.toLowerCase().includes('appt')
-          );
-          const cleanedEvents = state.events.filter(event => 
-            event.title !== 'Appt' && !event.title.toLowerCase().includes('appt')
-          );
-          const removedCount = originalLength - cleanedEvents.length;
-          
-          if (removedCount > 0) {
-            // Log details about what we're removing
-            const sampleApptEvents = apptEvents.slice(0, 5);
-            try {
-              getAddSyncLog()(`🧹 LOCAL CLEANUP: Found ${removedCount} "Appt" events to remove`, 'info', 
-                `Sample events: ${sampleApptEvents.map(e => `"${e.title}" on ${e.date} (ID: ${e.id})`).join(', ')}`
-              );
-              getAddSyncLog()(`🧹 LOCAL CLEANUP: Removed ${removedCount} "Appt" events locally`, 'success');
-              getAddSyncLog()(`📉 Local calendar reduced from ${originalLength} to ${cleanedEvents.length} events`, 'info');
-              
-              // Calculate size savings
-              const originalSize = JSON.stringify(state.events).length;
-              const newSize = JSON.stringify(cleanedEvents).length;
-              const savedKB = ((originalSize - newSize) / 1024).toFixed(1);
-              getAddSyncLog()(`💾 Storage saved: ${savedKB}KB`, 'success');
-            } catch(e) {/* ignore */}
-          } else {
-            try {
-              getAddSyncLog()(`✅ No "Appt" events found - calendar is clean`, 'info');
-            } catch(e) {/* ignore */}
-          }
-          
-          return { events: cleanedEvents };
-        });
-      },
+// CLEANUP FUNCTION: Remove test events and duplicates
+cleanupApptEvents: () => {
+  set((state) => {
+    const originalLength = state.events.length;
+    
+    // Define patterns to clean up
+    const testPatterns = [
+      'Appt',
+      'Work Task 3',
+      'Gym' // This one has 3,898 duplicates!
+    ];
+    
+    // Find events to remove
+    const eventsToRemove = state.events.filter(event => {
+      // Check if it's a test event
+      const isTestEvent = testPatterns.some(pattern => 
+        event.title === pattern || event.title.toLowerCase().includes(pattern.toLowerCase())
+      );
+      
+      // Also remove far future events (>365 days from now)
+      const eventDate = new Date(event.date);
+      const daysInFuture = (eventDate.getTime() - Date.now()) / (1000 * 60 * 60 * 24);
+      const isFarFuture = daysInFuture > 365;
+      
+      return isTestEvent || isFarFuture;
+    });
+    
+    const cleanedEvents = state.events.filter(event => {
+      const isTestEvent = testPatterns.some(pattern => 
+        event.title === pattern || event.title.toLowerCase().includes(pattern.toLowerCase())
+      );
+      const eventDate = new Date(event.date);
+      const daysInFuture = (eventDate.getTime() - Date.now()) / (1000 * 60 * 60 * 24);
+      const isFarFuture = daysInFuture > 365;
+      
+      return !isTestEvent && !isFarFuture;
+    });
+    
+    const removedCount = originalLength - cleanedEvents.length;
+    
+    if (removedCount > 0) {
+      // Count by type for logging
+      const removalStats = eventsToRemove.reduce((acc, e) => {
+        const key = testPatterns.find(p => 
+          e.title === p || e.title.toLowerCase().includes(p.toLowerCase())
+        ) || 'Far Future';
+        acc[key] = (acc[key] || 0) + 1;
+        return acc;
+      }, {} as Record<string, number>);
+      
+      try {
+        addSyncLog(`🧹 CLEANUP: Found ${removedCount} events to remove`, 'info', 
+          `Breakdown: ${Object.entries(removalStats).map(([k, v]) => `${k}: ${v}`).join(', ')}`
+        );
+        addSyncLog(`🧹 CLEANUP: Removed ${removedCount} test/duplicate events`, 'success');
+        addSyncLog(`📉 Calendar reduced from ${originalLength} to ${cleanedEvents.length} events`, 'info');
+        
+        // Calculate size savings
+        const originalSize = JSON.stringify(state.events).length;
+        const newSize = JSON.stringify(cleanedEvents).length;
+        const savedKB = ((originalSize - newSize) / 1024).toFixed(1);
+        addSyncLog(`💾 Storage saved: ${savedKB}KB`, 'success');
+      } catch(e) {/* ignore */}
+    } else {
+      try {
+        addSyncLog(`✅ No test events found - calendar is clean`, 'info');
+      } catch(e) {/* ignore */}
+    }
+    
+    return { events: cleanedEvents };
+  });
+},
       
       syncDeviceCalendarEvents: async (startDate: Date, endDate: Date) => {
         if (Platform.OS === 'web') return
@@ -177,14 +206,14 @@ export const useCalendarStore = create<CalendarState>()(
             const nonDeviceEvents = state.events.filter(
               (event) => !event.id.startsWith('device-')
             )
-            getAddSyncLog()(`Synced ${appEvents.length} device calendar events.`, 'info')
+            addSyncLog(`Synced ${appEvents.length} device calendar events.`, 'info')
             return {
               events: [...nonDeviceEvents, ...appEvents],
             }
           })
         } catch (error) {
           console.error('Failed to sync device calendar events:', error)
-            getAddSyncLog()('Failed to sync device calendar events', 'error')
+            addSyncLog('Failed to sync device calendar events', 'error')
         }
       },
 
@@ -253,7 +282,7 @@ export const useCalendarStore = create<CalendarState>()(
 
       syncBirthdays: (newContactId) => {
         const startTime = performance.now()
-        getAddSyncLog()('🔍 [CalendarStore] syncBirthdays start', 'verbose')
+        addSyncLog('🔍 [CalendarStore] syncBirthdays start', 'verbose')
         
         // First, do the fast synchronous work to update events immediately
         const syncResult = set((state) => {
@@ -262,7 +291,7 @@ export const useCalendarStore = create<CalendarState>()(
             const currentYear = new Date().getFullYear()
             const contactsToSync = newContactId ? { [newContactId]: contacts[newContactId] } : contacts
             
-            getAddSyncLog()(`[CalendarStore] Processing ${Object.keys(contactsToSync).length} contacts for birthday sync`, 'info')
+            addSyncLog(`[CalendarStore] Processing ${Object.keys(contactsToSync).length} contacts for birthday sync`, 'info')
             
             const nonBirthdayEvents = state.events.filter(
               (event) => event.type !== 'birthday' || (newContactId && event.personId !== newContactId)
@@ -272,7 +301,7 @@ export const useCalendarStore = create<CalendarState>()(
             const contactsWithBirthdays = Object.values(contactsToSync).filter((person: Person) => person.birthday)
             const birthdayEvents: CalendarEvent[] = []
             
-            getAddSyncLog()(`[CalendarStore] Found ${contactsWithBirthdays.length} contacts with birthdays`, 'info')
+            addSyncLog(`[CalendarStore] Found ${contactsWithBirthdays.length} contacts with birthdays`, 'info')
             
             // Generate birthday events (this is fast)
             contactsWithBirthdays.forEach((person: Person) => {
@@ -299,14 +328,14 @@ export const useCalendarStore = create<CalendarState>()(
             })
             
             const eventsTime = performance.now()
-            getAddSyncLog()(`[CalendarStore] Generated ${birthdayEvents.length} birthday events in ${(eventsTime - startTime).toFixed(2)}ms`, 'info')
+            addSyncLog(`[CalendarStore] Generated ${birthdayEvents.length} birthday events in ${(eventsTime - startTime).toFixed(2)}ms`, 'info')
             
             // Store contacts with birthdays for async processing
             ;(globalThis as any).__birthdayContactsToProcess = contactsWithBirthdays
             
             return { events: [...nonBirthdayEvents, ...birthdayEvents] }
           } catch (error) {
-            getAddSyncLog()(`🔴 [CalendarStore] Error in syncBirthdays: ${error}`, 'error')
+            addSyncLog(`🔴 [CalendarStore] Error in syncBirthdays: ${error}`, 'error')
             return state
           }
         })
@@ -322,11 +351,11 @@ export const useCalendarStore = create<CalendarState>()(
             delete (globalThis as any).__birthdayContactsToProcess
             
             if (contactsWithBirthdays.length === 0) {
-              getAddSyncLog()('[CalendarStore] No contacts with birthdays to process async tasks', 'info')
+              addSyncLog('[CalendarStore] No contacts with birthdays to process async tasks', 'info')
               return
             }
             
-            getAddSyncLog()(`[CalendarStore] Starting async birthday notifications and tasks for ${contactsWithBirthdays.length} contacts`, 'info')
+            addSyncLog(`[CalendarStore] Starting async birthday notifications and tasks for ${contactsWithBirthdays.length} contacts`, 'info')
             
             const addTask = useProjectStore.getState().addTask
             const scheduleNotification = get().scheduleNotification
@@ -358,13 +387,13 @@ export const useCalendarStore = create<CalendarState>()(
                     )
                     notificationCount++
                   } catch (error) {
-                    getAddSyncLog()(`Failed to schedule birthday notification for ${person.name}`, 'error')
+                    addSyncLog(`Failed to schedule birthday notification for ${person.name}`, 'error')
                   }
                 }
                 
                 if (person.priority && twoWeeksBefore > now) {
                   try {
-                    getAddSyncLog()(`📅 [DEBUG] Scheduling 2-week reminder for ${person.name} on ${format(twoWeeksBefore, 'yyyy-MM-dd HH:mm')}`, 'verbose')
+                    addSyncLog(`📅 [DEBUG] Scheduling 2-week reminder for ${person.name} on ${format(twoWeeksBefore, 'yyyy-MM-dd HH:mm')}`, 'verbose')
                     await scheduleNotification(
                       twoWeeksBefore,
                       `🎁 ${person.name}'s Birthday in 2 Weeks`,
@@ -388,7 +417,7 @@ export const useCalendarStore = create<CalendarState>()(
                     })
                     taskCount++
                   } catch (error) {
-                    getAddSyncLog()(`Failed to schedule 2-week reminder for ${person.name}`, 'error')
+                    addSyncLog(`Failed to schedule 2-week reminder for ${person.name}`, 'error')
                   }
                 }
                 
@@ -408,7 +437,7 @@ export const useCalendarStore = create<CalendarState>()(
                     })
                     taskCount++
                   } catch (error) {
-                    getAddSyncLog()(`Failed to add birthday task for ${person.name}`, 'error')
+                    addSyncLog(`Failed to add birthday task for ${person.name}`, 'error')
                   }
                 }
               }
@@ -423,7 +452,7 @@ export const useCalendarStore = create<CalendarState>()(
             const totalTime = asyncEndTime - startTime
             const asyncTime = asyncEndTime - asyncStartTime
             
-            getAddSyncLog()(`[CalendarStore] ✅ Birthday sync complete: ${notificationCount} notifications, ${taskCount} tasks in ${asyncTime.toFixed(2)}ms (total: ${totalTime.toFixed(2)}ms)`, 'success')
+              addSyncLog(`[CalendarStore] ✅ Birthday sync complete: ${notificationCount} notifications, ${taskCount} tasks in ${asyncTime.toFixed(2)}ms (total: ${totalTime.toFixed(2)}ms)`, 'success')
             
             // STRATEGIC DEBUG LOGGING: Show ALL scheduled notifications
             try {
@@ -432,9 +461,9 @@ export const useCalendarStore = create<CalendarState>()(
                 const birthdayNotifications = allScheduledNotifications.filter(n => 
                   n.identifier && n.identifier.includes('birthday')
                 )
-                
-                getAddSyncLog()(`🔍 [DEBUG] Total scheduled notifications: ${allScheduledNotifications.length}`, 'info')
-                getAddSyncLog()(`🎂 [DEBUG] Birthday notifications scheduled: ${birthdayNotifications.length}`, 'info')
+
+                addSyncLog(`🔍 [DEBUG] Total scheduled notifications: ${allScheduledNotifications.length}`, 'info')
+                addSyncLog(`🎂 [DEBUG] Birthday notifications scheduled: ${birthdayNotifications.length}`, 'info')
                 
                 if (birthdayNotifications.length > 0) {
                   const birthdayDetails = birthdayNotifications
@@ -448,7 +477,7 @@ export const useCalendarStore = create<CalendarState>()(
                       let dateStr = 'Unknown'
                       try {
                         // Always debug the trigger structure to understand the format
-                        getAddSyncLog()(`🔍 [DEBUG] Trigger structure for ${n.identifier}: ${JSON.stringify(n.trigger)}`, 'verbose')
+                        addSyncLog(`🔍 [DEBUG] Trigger structure for ${n.identifier}: ${JSON.stringify(n.trigger)}`, 'verbose')
                         
                         if (n.trigger && (n.trigger as any).seconds) {
                           // Handle iOS timeInterval triggers - convert seconds to actual date
@@ -467,15 +496,15 @@ export const useCalendarStore = create<CalendarState>()(
                           dateStr = format(triggerDate, 'MMM dd, yyyy HH:mm')
                         }
                       } catch (error) {
-                        getAddSyncLog()(`🔴 [DEBUG] Date parsing error for ${n.identifier}: ${error}`, 'error')
+                        addSyncLog(`🔴 [DEBUG] Date parsing error for ${n.identifier}: ${error}`, 'error')
                       }
                       return `${n.identifier}: "${n.content.title}" at ${dateStr}`
                     })
                     .join('\n  • ')
                   
-                  getAddSyncLog()(`🎂 [DEBUG] Next 10 birthday notifications:\n  • ${birthdayDetails}`, 'info')
+                  addSyncLog(`🎂 [DEBUG] Next 10 birthday notifications:\n  • ${birthdayDetails}`, 'info')
                 } else {
-                  getAddSyncLog()(`⚠️ [DEBUG] No birthday notifications found! This may indicate a scheduling issue.`, 'warning')
+                  addSyncLog(`⚠️ [DEBUG] No birthday notifications found! This may indicate a scheduling issue.`, 'warning')
                 }
                 
                 // Show all notification types for broader debugging
@@ -494,15 +523,15 @@ export const useCalendarStore = create<CalendarState>()(
                   .map(([type, count]) => `${type}: ${count}`)
                   .join(', ')
                 
-                getAddSyncLog()(`📊 [DEBUG] Notification types breakdown: ${typesSummary}`, 'info')
+                addSyncLog(`📊 [DEBUG] Notification types breakdown: ${typesSummary}`, 'info')
               }
             } catch (debugError) {
-              getAddSyncLog()(`🔴 [DEBUG] Error fetching scheduled notifications: ${debugError}`, 'error')
+              addSyncLog(`🔴 [DEBUG] Error fetching scheduled notifications: ${debugError}`, 'error')
             }
             
           } catch (error) {
             const errorTime = performance.now()
-            getAddSyncLog()(`🔴 [CalendarStore] Error in async birthday processing: ${error}`, 'error')
+            addSyncLog(`🔴 [CalendarStore] Error in async birthday processing: ${error}`, 'error')
             console.error('🔴 [CalendarStore] async birthday processing error:', error)
           }
         }, 10) // Small delay to let UI update first
@@ -514,7 +543,7 @@ export const useCalendarStore = create<CalendarState>()(
         set((state) => {
           const newSyncState = !state.isSyncEnabled
           try {
-            getAddSyncLog()(`Calendar sync ${newSyncState ? 'enabled' : 'disabled'}`, 'info')
+            addSyncLog(`Calendar sync ${newSyncState ? 'enabled' : 'disabled'}`, 'info')
           } catch (e) {/* ignore */}
           return { isSyncEnabled: newSyncState }
         })
@@ -644,12 +673,12 @@ export const useCalendarStore = create<CalendarState>()(
         
         const currentSyncEnabledState = get().isSyncEnabled
         if (!currentSyncEnabledState) {
-          getAddSyncLog()('Calendar sync is disabled, skipping hydration for CalendarStore.', 'info')
+          addSyncLog('Calendar sync is disabled, skipping hydration for CalendarStore.', 'info')
           return
         }
 
         if (!syncedData.events || !Array.isArray(syncedData.events)) {
-          getAddSyncLog()('No events data in snapshot for CalendarStore, or events are not an array.', 'info')
+          addSyncLog('No events data in snapshot for CalendarStore, or events are not an array.', 'info')
           return
         }
 
@@ -695,8 +724,8 @@ export const useCalendarStore = create<CalendarState>()(
             }
           }
           
-          getAddSyncLog()(`Calendar events hydrated: ${itemsAddedCount} added, ${itemsMergedCount} merged, ${itemsSkippedDevice} device events skipped. Total events: ${mergedEventsArray.length}`, 'success')
-          return { events: mergedEventsArray }
+          addSyncLog(`Calendar events hydrated: ${itemsAddedCount} added, ${itemsMergedCount} merged, ${itemsSkippedDevice} device events skipped. Total events: ${mergedEventsArray.length}`, 'success')
+           return { events: mergedEventsArray }
         })
         
         // AUTO-CLEANUP: Remove any local "Appt" events that survived sync
@@ -704,7 +733,7 @@ export const useCalendarStore = create<CalendarState>()(
           try {
             get().cleanupApptEvents();
           } catch (error) {
-            getAddSyncLog()('Error during auto-cleanup of Appt events', 'error');
+            addSyncLog('Error during auto-cleanup of Appt events', 'error');
           }
         }, 100);
       },

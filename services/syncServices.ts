@@ -70,17 +70,9 @@ export const isTaskDueOnDate = (task: Task, date: Date): boolean => {
 };
 
 export const generateTaskEvents = (task: Task): Omit<CalendarEvent, 'id' | 'createdAt' | 'updatedAt'>[] => {
-  // EMERGENCY BRAKE: Stop "Appt" task from generating events
-  if (task.name === 'Appt' || task.name.toLowerCase().includes('appt')) {
-    // Assuming addSyncLog is available from useCalendarStore or a global context
-    // For now, we'll just log a warning to the console.
-    console.warn(`🚨 BLOCKING TASK: "${task.name}" prevented from generating calendar events`);
-    return []; // Return empty array - no events generated
-  }
-
   const events = [];
   const start = new Date();
-  const end = new Date(start.getFullYear() + 2, 11, 31);
+  const end = new Date(start.getTime() + (365 * 24 * 60 * 60 * 1000));// 365 days from now
   
   if (task.recurrencePattern === 'one-time') {
     const eventDate = new Date(task.scheduledDate || task.createdAt);

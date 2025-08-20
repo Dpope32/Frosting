@@ -21,6 +21,10 @@ const notifySubscribers = () => {
   }
 };
 
+/*
+  This is a global function that can be used to add logs to the log queue.
+  It expects 0 ar
+*/
 export const addSyncLog = (
   message: string, 
   status: LogStatus, 
