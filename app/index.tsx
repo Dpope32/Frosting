@@ -73,6 +73,10 @@ export default function Index() {
       if (!premium) return;                                      
       startInitialSync();
       
+      // 🧹 ONE-TIME CLEANUP: Remove duplicates BEFORE export captures state
+      await useCalendarStore.getState().cleanupServerSnapshot();
+      addSyncLog(`🧹 Pre-export cleanup completed`, 'success');
+      
       const exportStartTime = Date.now();
       const state = getAllStoreStates();
       await exportEncryptedState(state);
@@ -112,7 +116,6 @@ export default function Index() {
         // Push phase timing - PUSH MERGED DATA (local + remote)
         const pushStartTime = Date.now();
         const { pushSnapshot } = await import('@/sync/snapshotPushPull');
-        await useCalendarStore.getState().cleanupServerSnapshot();
         await pushSnapshot();
         const pushEndTime = Date.now();
         const pushDuration = pushEndTime - pushStartTime;
