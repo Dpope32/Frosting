@@ -38,6 +38,39 @@ export const defaultPreferences: UserPreferences = {
 	calendarPermission: false,
 };
 
+const summarizePfpRef = (value: any): string => {
+	if (!value) return 'none';
+	if (typeof value !== 'string') return `type=${typeof value}`;
+	const v = value as string;
+
+	if (v.startsWith('http')) {
+		try {
+			const u = new URL(v);
+			const last = u.pathname.split('/').filter(Boolean).pop() || '';
+			return `remote:${u.host}/${last}`;
+		} catch {
+			return 'remote:url';
+		}
+	}
+
+	if (v.startsWith('data:')) {
+		const mime = v.slice(5, v.indexOf(';')) || 'unknown';
+		const estBytes = Math.round((v.length * 3) / 4);
+		const kb = Math.round(estBytes / 102.4) / 10; // ~1 decimal
+		return `data:${mime} (~${kb}KB)`;
+	}
+
+	if (v.startsWith('file://')) {
+		const base = v.split('/').pop() || '';
+		let loc = 'file';
+		if (v.includes('/Documents/') || v.includes('documentDirectory')) loc = 'documents';
+		else if (v.includes('/cache/') || v.includes('cacheDirectory')) loc = 'cache';
+		return `${loc}:${base}`;
+	}
+
+	return `string(len=${v.length})`;
+};
+
 const IS_TEST = typeof (globalThis as any).jest !== 'undefined' || process.env.NODE_ENV === 'test' || typeof jest !== 'undefined';
 const getUserAccess = (premium: boolean, username: string): 'premium' | 'none' => {
 	if (premium) return 'premium';
@@ -53,6 +86,7 @@ export const useUserStore = create<UserStore>()(
 			preferences: defaultPreferences,
 			hydrated: false,
 
+      
 			ensureProfileDir: async () => {
 				if (IS_TEST || Platform.OS === 'web') return;
 				try {
@@ -92,7 +126,7 @@ export const useUserStore = create<UserStore>()(
 
 					const oldInfo = await FileSystem.getInfoAsync(current);
 					if (!oldInfo.exists) {
-						addSyncLog('⚠️ [UserStore] Cache-based profile picture path no longer exists; clearing reference', 'warning', current);
+						addSyncLog('⚠️ [UserStore] Cache-based profile picture path no longer exists; clearing reference', 'warning', summarizePfpRef(current));
 						set((state) => ({ preferences: { ...state.preferences, profilePicture: undefined as any } }));
 						Sentry.captureMessage('Profile picture missing during migration from cache', { level: 'warning' });
 						return;
@@ -100,7 +134,7 @@ export const useUserStore = create<UserStore>()(
 
 					// Copy to persistent documents dir
 					await FileSystem.copyAsync({ from: current, to: targetPath });
-					addSyncLog(`✅ [UserStore] Migrated profile picture from cache to documents`, 'success', `from: ${current} -> to: ${targetPath}`);
+					addSyncLog(`✅ [UserStore] Migrated profile picture from cache to documents`, 'success', `from: ${summarizePfpRef(current)} -> to: ${summarizePfpRef(targetPath)}`);
 
 					// Update preference to point to new location
 					set((state) => ({
@@ -132,13 +166,13 @@ export const useUserStore = create<UserStore>()(
 
 					// Skip remote URLs; we don't manage them locally
 					if (current.startsWith('http')) {
-						addSyncLog(`🌐 [UserStore] Profile picture is remote URL, validation skipped`, 'verbose', current);
+						addSyncLog(`🌐 [UserStore] Profile picture is remote URL, validation skipped`, 'verbose', summarizePfpRef(current));
 						return;
 					}
 
 					const info = await FileSystem.getInfoAsync(current);
 					if (!info.exists) {
-						addSyncLog('⚠️ [UserStore] Profile picture path missing on disk; clearing reference', 'warning', current);
+						addSyncLog('⚠️ [UserStore] Profile picture path missing on disk; clearing reference', 'warning', summarizePfpRef(current));
 						Sentry.captureMessage('Profile picture missing on disk during validation', {
 							level: 'warning',
 							extra: { current },
@@ -147,7 +181,7 @@ export const useUserStore = create<UserStore>()(
 							preferences: { ...state.preferences, profilePicture: undefined as any },
 						}));
 					} else {
-						addSyncLog('✅ [UserStore] Profile picture validated on disk', 'info', current);
+						addSyncLog('✅ [UserStore] Profile picture validated on disk', 'info', summarizePfpRef(current));
 					}
 				} catch (error) {
 					addSyncLog('❌ [UserStore] Error validating profile picture', 'error', error instanceof Error ? error.message : String(error));
@@ -167,9 +201,9 @@ export const useUserStore = create<UserStore>()(
 					// Log profile picture changes with detailed info
 					if (currentProfilePicture !== newPrefs.profilePicture) {
 						addSyncLog(
-							`👤 [UserStore] Profile picture changing from "${currentProfilePicture || 'none'}" to "${newPrefs.profilePicture || 'none'}"`,
+							`👤 [UserStore] Profile picture changing from "${summarizePfpRef(currentProfilePicture)}" to "${summarizePfpRef(newPrefs.profilePicture)}"`,
 							'info',
-							`Previous: ${currentProfilePicture || 'null'} | New: ${newPrefs.profilePicture || 'null'} | Type: ${typeof newPrefs.profilePicture}`
+							`Previous: ${summarizePfpRef(currentProfilePicture)} | New: ${summarizePfpRef(newPrefs.profilePicture)} | Type: ${typeof newPrefs.profilePicture}`
 						);
 						
 						// Check if the new profile picture is a file:// URI that might be in cache
@@ -178,13 +212,13 @@ export const useUserStore = create<UserStore>()(
 								addSyncLog(
 									`⚠️ [UserStore] WARNING: Profile picture uses cache directory - this may cause disappearing images!`,
 									'warning',
-									`URI: ${newPrefs.profilePicture} | Consider migrating to documentDirectory for persistence`
+									`Ref: ${summarizePfpRef(newPrefs.profilePicture)}`
 								);
 							} else if (newPrefs.profilePicture.includes('/Documents/') || newPrefs.profilePicture.includes('documentDirectory')) {
 								addSyncLog(
 									`✅ [UserStore] Profile picture uses persistent document directory`,
 									'success',
-									`URI: ${newPrefs.profilePicture}`
+									`Ref: ${summarizePfpRef(newPrefs.profilePicture)}`
 								);
 							} else if (newPrefs.profilePicture.startsWith('http')) {
 								addSyncLog(
@@ -196,7 +230,7 @@ export const useUserStore = create<UserStore>()(
 								addSyncLog(
 									`📁 [UserStore] Profile picture is local file URI`,
 									'info',
-									`URI: ${newPrefs.profilePicture}`
+									`Ref: ${summarizePfpRef(newPrefs.profilePicture)}`
 								);
 							}
 						} else if (newPrefs.profilePicture === null || newPrefs.profilePicture === '') {
@@ -265,12 +299,12 @@ export const useUserStore = create<UserStore>()(
 							);
 							Sentry.captureException(new Error('User profile picture stored in volatile cache directory'));
 						} else {
-							addSyncLog(`👤 [UserStore] Hydrated profile picture reference`, 'info', String(profilePicture));
+							addSyncLog(`👤 [UserStore] Hydrated profile picture reference`, 'info', summarizePfpRef(profilePicture));
 						}
 					} else {
 						addSyncLog(
 							`👤 [UserStore] No profile picture found during hydration`,
-							'verbose',
+							'verbose',  
 							`Profile picture value: ${String(state.preferences.profilePicture)}`
 						);
 					}

@@ -188,7 +188,7 @@ export function TagSelector({
                   br={20}
                   px="$3"
                   py={isIpad() ? "$2.5" : "$1"}
-                  height={isWeb ? 50 : isIpad() ? undefined : 35}
+                  height={isWeb ? 35 : isIpad() ? undefined : 35}
                   borderWidth={1}
                   borderColor={
                     isSelected
