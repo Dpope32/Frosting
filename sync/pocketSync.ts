@@ -22,34 +22,14 @@ const getAddSyncLog = () => {
   }
   return () => {};
 }
-// ───────────────────────── CONSTANTS ─────────────────────────
 const DEFAULT_PORT = 8090
 
-/**
- * Detects if we're running on a simulator/emulator where PocketBase might not work
- */
 const isSimulatorOrDev = (): boolean => {
-  // Always skip PocketBase in development mode
-  if (__DEV__) {
-    return true;
-  }
-  
-  // Check for simulator/emulator on iOS/Android
-  // This is a basic check - more sophisticated detection could be added
-  if (Platform.OS === 'ios' || Platform.OS === 'android') {
-    // In production builds on real devices, we assume PocketBase should work
-    // The import error will be caught and handled gracefully anyway
-    return false;
-  }
-  
-  // On web, PocketBase should work fine
+  if (__DEV__) { return true}
+  if (Platform.OS === 'ios' || Platform.OS === 'android') { return false}
   return false;
 };
 
-/**
- * Ensures the provided base URL includes a port.
- * If none present append `:8090`. Trailing slashes removed.
- */
 const withPort = (raw?: string): string | undefined => {
   if (!raw) return undefined;
   const url = raw.replace(/\/$/, '');
@@ -60,79 +40,55 @@ const withPort = (raw?: string): string | undefined => {
 
 const CANDIDATE_URLS = (Platform.OS === 'web' 
   ? [
-      // Prioritize proxy for web (VPNs commonly block Tailscale)
       'https://kaiba.vercel.app/api/proxy/pb',
       withPort(process.env.EXPO_PUBLIC_POCKETBASE_URL),
       withPort(process.env.EXPO_PUBLIC_PB_LAN),
       withPort(process.env.EXPO_PUBLIC_PB_URL),
     ]
   : [
-      // Direct connections first for mobile
       withPort(process.env.EXPO_PUBLIC_POCKETBASE_URL), 
       withPort(process.env.EXPO_PUBLIC_PB_LAN),
       withPort(process.env.EXPO_PUBLIC_PB_URL),
     ]
-).filter(Boolean).filter((url, index, array) => array.indexOf(url) === index) as string[]; // Remove duplicates
+).filter(Boolean).filter((url, index, array) => array.indexOf(url) === index) as string[];
 
 
 const CANDIDATE_URLS_DEV = (Platform.OS === 'web' 
   ? [
-      // Prioritize proxy for web (VPNs commonly block Tailscale)
       'https://kaiba.vercel.app/api/proxy/pb',
       withPort(process.env?.EXPO_PUBLIC_POCKETBASE_URL),
       withPort(process.env?.EXPO_PUBLIC_PB_LAN),
       withPort(process.env?.EXPO_PUBLIC_PB_URL),
     ]
   : [
-      // Direct connections first for mobile
       withPort(process.env?.EXPO_PUBLIC_POCKETBASE_URL), 
       withPort(process.env?.EXPO_PUBLIC_PB_LAN),
       withPort(process.env?.EXPO_PUBLIC_PB_URL),
     ]
-).filter(Boolean).filter((url, index, array) => array.indexOf(url) === index) as string[]; // Remove duplicates
+).filter(Boolean).filter((url, index, array) => array.indexOf(url) === index) as string[];
 
-// ───────────────────────── DEV SWITCH ─────────────────────────
-// Default to using normal URLs. Can be flipped at runtime or via env var.
 const parseBooleanEnv = (val?: string): boolean => val === '1' || val === 'true' || val === 'TRUE';
 let USE_DEV_PB_CANDIDATES = false;
 try {
-  // Guarded for web environments without Node's process
-  // Prefer EXPO_PUBLIC_ so Expo inlines it for web builds
-  // Example flip: set EXPO_PUBLIC_PB_USE_DEV_URLS=1 before starting web
-  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-  // @ts-ignore
   const envVal = typeof process !== 'undefined' && process?.env?.EXPO_PUBLIC_PB_USE_DEV_URLS;
-  if (typeof envVal === 'string') {
-    USE_DEV_PB_CANDIDATES = parseBooleanEnv(envVal);
-  }
+  if (typeof envVal === 'string') { USE_DEV_PB_CANDIDATES = parseBooleanEnv(envVal)}
 } catch {}
 
-export const setUseDevPocketSync = (enabled: boolean) => {
-  USE_DEV_PB_CANDIDATES = enabled;
-};
+export const setUseDevPocketSync = (enabled: boolean) => {USE_DEV_PB_CANDIDATES = enabled}
 
 const ACTIVE_CANDIDATE_URLS = USE_DEV_PB_CANDIDATES ? CANDIDATE_URLS_DEV : CANDIDATE_URLS;
 
-const HEALTH_TIMEOUT = Platform.OS === 'web' ? 3000 : 8000  // Shorter timeout on web for VPN detection
-const HEALTH_TIMEOUT_RETRY = Platform.OS === 'web' ? 4000 : 12000  // Shorter retry timeout on web
+const HEALTH_TIMEOUT = Platform.OS === 'web' ? 3000 : 8000  
+const HEALTH_TIMEOUT_RETRY = Platform.OS === 'web' ? 4000 : 12000  
 const HEALTH_PATH = '/api/health'
-const MAX_RETRIES = Platform.OS === 'web' ? 1 : 3  // Reduce retries on web (VPN context)
-const RETRY_DELAY_BASE = 500  // Faster retry for web
-// eslint-disable-next-line @typescript-eslint/consistent-type-imports
+const MAX_RETRIES = Platform.OS === 'web' ? 1 : 3
+const RETRY_DELAY_BASE = 500  
+
 export type PocketBaseType = import('pocketbase').default
 
-// ───────────────────────── NETWORK UTILS ─────────────────────────
 export const checkNetworkConnectivity = async (): Promise<boolean> => {
-  Sentry.addBreadcrumb({ category: 'pocketSync', message: 'checkNetworkConnectivity()', level: 'info' })
-  
-  
   try {
-    // Skip network check on web - assume connection is available
-    if (Platform.OS === 'web') {
-      getAddSyncLog()(`🌐 Web platform detected - skipping Google connectivity check`, 'info');
-      return true;
-    }
-    
+    if (Platform.OS === 'web') {return true}
     const controller = new AbortController()
     const timeout = setTimeout(() => controller.abort(), 3_000)
     await fetch('https://clients3.google.com/generate_204', {
@@ -143,21 +99,15 @@ export const checkNetworkConnectivity = async (): Promise<boolean> => {
     return true
   } catch (err) {
     Sentry.captureException(err)
-    // On web, if we can't check connectivity, assume we're connected
-    if (Platform.OS === 'web') {
-      getAddSyncLog()(`🌐 Web platform error fallback - assuming connected`, 'info');
-      return true;
-    }
+    if (Platform.OS === 'web') {return true}
     return false
   }
 }
 
-// ───────────────────────── ROBUST CONNECTION HELPERS ─────────────────────────
+
 const sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
-
 const testUrlWithRetries = async (baseUrl: string): Promise<boolean> => {
-  // Handle proxy URLs differently
   const isProxyUrl = baseUrl.includes('/api/proxy/pb');
   const url = isProxyUrl ? `${baseUrl}/health` : `${baseUrl}${HEALTH_PATH}`;
   
@@ -165,10 +115,8 @@ const testUrlWithRetries = async (baseUrl: string): Promise<boolean> => {
     if (await testSingleUrl(url, attempt)) {
       return true;
     }
-    
-    // Don't sleep after the last attempt
     if (attempt < MAX_RETRIES) {
-      const delay = RETRY_DELAY_BASE * Math.pow(2, attempt); // Exponential backoff
+      const delay = RETRY_DELAY_BASE * Math.pow(2, attempt);
       await sleep(delay);
     }
   }
@@ -177,7 +125,6 @@ const testUrlWithRetries = async (baseUrl: string): Promise<boolean> => {
   return false;
 };
 
-// ───────────────────────── ROBUST PB FACTORY ─────────────────────────
 
 const testSingleUrl = async (url: string, retryCount: number = 0): Promise<boolean> => {
   const isRetry = retryCount > 0;
@@ -190,7 +137,6 @@ const testSingleUrl = async (url: string, retryCount: number = 0): Promise<boole
     let res = await fetch(url, { 
       method: 'GET', 
       signal: ctrl.signal,
-      // Platform-specific headers for better iOS compatibility
       headers: Platform.OS === 'ios' ? {
         'Cache-Control': 'no-cache',
         'Pragma': 'no-cache',
@@ -212,7 +158,6 @@ const testSingleUrl = async (url: string, retryCount: number = 0): Promise<boole
     
     clearTimeout(timer);
 
-    // Accept 200, 401, or 404 as "alive" (different PB versions)
     if (res.status === 200 || res.status === 401 || res.status === 404) {
       return true;
     }
@@ -223,15 +168,9 @@ const testSingleUrl = async (url: string, retryCount: number = 0): Promise<boole
     clearTimeout(timer);
     const errorMsg = e.name === 'AbortError' ? 'timeout' : e.message || 'unknown error';
     
-    // Enhanced error debugging
-    if (Platform.OS === 'ios') {
-      getAddSyncLog()(`📱 iOS error for ${url}: ${e.name} - ${errorMsg}`, 'warning');
-      if (e.stack) {
-        getAddSyncLog()(`📱 iOS error stack: ${e.stack.split('\n')[0]}`, 'verbose');
-      }
-    } else {
-      getAddSyncLog()(`❌ Network error with ${url}`, 'error', errorMsg);
-    }
+    if (Platform.OS === 'ios') { getAddSyncLog()(`📱 iOS error for ${url}: ${e.name} - ${errorMsg}`, 'warning')}
+    if (e.stack) { getAddSyncLog()(`📱 iOS error stack: ${e.stack.split('\n')[0]}`, 'verbose')}
+    if (Platform.OS !== 'ios') { getAddSyncLog()(`❌ Network error with ${url}`, 'error', errorMsg)}
     return false;
   }
 };
@@ -241,7 +180,6 @@ export const getPocketBase = async (): Promise<PocketBaseType> => {
     throw new Error('SKIP_SYNC_SILENTLY');
   }
   let selected: string | undefined;
-  // Test each URL with full retry logic
   for (const baseUrl of ACTIVE_CANDIDATE_URLS) {
     if (await testUrlWithRetries(baseUrl)) {
       selected = baseUrl;
@@ -268,28 +206,17 @@ export const getPocketBase = async (): Promise<PocketBaseType> => {
     } else {
       getAddSyncLog()(`❌ Failed to import PocketBase: ${errorMessage}`, 'error');
     }
-    
     throw new Error('SKIP_SYNC_SILENTLY');
   }
   
-  // Check if we're using the proxy
   const isProxyUrl = selected.includes('/api/proxy/pb');
   
-  // Set longer default timeout for all PB operations
   pb.beforeSend = function (url, options) {
-    // Increase timeout for all PocketBase requests
     const controller = new AbortController();
-    setTimeout(() => controller.abort(), 15000); // 15 second timeout
+    setTimeout(() => controller.abort(), 15000);
     
-    // Handle proxy URL rewriting
     let finalUrl = url;
-    if (isProxyUrl) {
-      // Remove the extra /api that PocketBase adds when using proxy
-      // PocketBase creates: https://kaiba.vercel.app/api/proxy/pb/api/collections/...
-      // We want: https://kaiba.vercel.app/api/proxy/pb/collections/...
-      finalUrl = url.replace('/api/proxy/pb/api/', '/api/proxy/pb/');
-    //  getAddSyncLog()(`🔄 Proxy URL rewrite: ${url} -> ${finalUrl}`, 'verbose');
-    }
+    if (isProxyUrl) { finalUrl = url.replace('/api/proxy/pb/api/', '/api/proxy/pb/')}
     
     return {
       url: finalUrl,
@@ -303,7 +230,6 @@ export const getPocketBase = async (): Promise<PocketBaseType> => {
   return pb;
 };
 
-// ───────────────────────── LOG EXPORT ─────────────────────────
 export const exportLogsToServer = async (logs: LogEntry[]): Promise<void> => {
   if (!useUserStore.getState().preferences.premium) return
 
@@ -322,6 +248,4 @@ export const exportLogsToServer = async (logs: LogEntry[]): Promise<void> => {
     timestamp: new Date().toISOString(),
     logs: JSON.stringify(logs),
   })
-
-  getAddSyncLog()('Logs saved in PocketBase', 'info')
 }

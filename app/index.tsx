@@ -87,44 +87,32 @@ export default function Index() {
               addSyncLog(`💾 Export phase completed in ${(exportDuration/1000).toFixed(1)}s`, 'info');
   
       if (finishedOnboarding) {
-        // 🚀 GIT-LIKE CHECK: Skip entire sync if this device was the last to update
         const checkStartTime = Date.now();
         const isAlreadyUpToDate = await checkIfAlreadyUpToDate();
         const checkDuration = Date.now() - checkStartTime;
         
         if (isAlreadyUpToDate) {
-          // Skip all network operations - this device already has the latest data
           const totalTime = Date.now() - overallStartTime;
           addSyncLog(`⚡ Quick startup (already up to date): ${(totalTime/1000).toFixed(1)}s (${checkDuration}ms check)`, 'success');
           completeInitialSync();
           useToastStore.getState().showToast('Already up to date', 'success');
-          return; // Exit early, skip pull/push entirely
+          return;
         }
-        
-        // DIFFERENT DEVICE: Full sync required
-        addSyncLog(`🔄 Running full sync (different device)`, 'info');
-        
-        // Pull phase timing - GET OTHER DEVICES' DATA FIRST
+
+        addSyncLog(`New Data detected on server, syncing...`, 'info');
         const pullStartTime = Date.now();
         await pullLatestSnapshot();
         const pullEndTime = Date.now();
         const pullDuration = pullEndTime - pullStartTime;
-        
-        const platformEmoji = Platform.OS === 'android' ? '🤖' : Platform.OS === 'ios' ? '🍎' : Platform.OS === 'web' ? '🌐' : '📱';
-        addSyncLog(`📥 ${platformEmoji} Pull phase completed in ${(pullDuration/1000).toFixed(1)}s - got remote data first`, 'info');
-        
-        // Push phase timing - PUSH MERGED DATA (local + remote)
         const pushStartTime = Date.now();
+
         const { pushSnapshot } = await import('@/sync/snapshotPushPull');
         await pushSnapshot();
         const pushEndTime = Date.now();
         const pushDuration = pushEndTime - pushStartTime;
         const totalTime = Date.now() - overallStartTime;
-        const timeOnPocketbase = pullDuration + pushDuration;
-        addSyncLog(` App startup breakdown: Push time = ${(pushDuration/1000).toFixed(1)}s, Hydration=${(hydrationDuration/1000).toFixed(1)}s, Pull=${(pullDuration/1000).toFixed(1)}s, Total=${(totalTime/1000).toFixed(1)}s`, 'info');
-        if(timeOnPocketbase > 20000) {
-          addSyncLog(`shits slow asf yo`, 'warning');
-        }
+
+        addSyncLog(`App startup breakdown: Push=${(pushDuration/1000).toFixed(1)}s, Pull=${(pullDuration/1000).toFixed(1)}s, Hydration+Export=${(hydrationDuration/1000).toFixed(1)}s, Total=${(totalTime/1000).toFixed(1)}s`, 'info');
         completeInitialSync();
         useToastStore.getState().showToast('Synced with workspace', 'success');
       } else {

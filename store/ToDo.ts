@@ -556,9 +556,6 @@ export const useProjectStore = create<ProjectStore>()(
         const before = Object.keys(tasks).length;
         const todaysTasks = taskFilter(tasks);
         const after = todaysTasks.length;
-        if (debug) {
-          addSyncLog(`[Tasks] recalc: ${before} ➜ ${after}`, 'info');
-        }
         set({ todaysTasks });
       },
       
@@ -580,7 +577,6 @@ export const useProjectStore = create<ProjectStore>()(
       }
       const merged: Record<string, Task> = {};
       
-      // Counters for surgical logging
       let addedCount = 0;
       let mergedCount = 0;
       let keptLocalCount = 0;

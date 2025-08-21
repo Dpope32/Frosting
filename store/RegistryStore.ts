@@ -265,9 +265,21 @@ export const useRegistryStore = create<RegistryState>((set, get) => {
       let calendarStateForSnapshot: any = { isSyncEnabled: calendarStoreFullState.isSyncEnabled };
       if (calendarStoreFullState.isSyncEnabled) {
         // Filter out birthday events from sync - they're generated locally
-        const eventsToSync = calendarStoreFullState.events.filter(event => 
-          event.type !== 'birthday'
-        );
+        // Filter out birthday events AND junk data from sync
+        const problematicTitles = new Set(['Gym', 'Work Task 3', 'Appt']);
+
+        const eventsToSync = calendarStoreFullState.events.filter(event => {
+          // Skip birthday events (generated locally)
+          if (event.type === 'birthday') return false;
+          
+          // Skip junk data
+          if (problematicTitles.has(event.title)) return false;
+          
+          // Skip far future events (>90 days)
+          const eventDate = new Date(event.date);
+          const daysInFuture = (eventDate.getTime() - Date.now()) / (1000 * 60 * 60 * 24);
+          return daysInFuture <= 90;
+        });
         calendarStateForSnapshot.events = eventsToSync;
         calendarStateForSnapshot.lastUpdated = now;
       } else {
@@ -322,6 +334,7 @@ export const useRegistryStore = create<RegistryState>((set, get) => {
         isInitialSyncInProgress: false, 
         initialSyncStartTime: null 
       });
+
     },
     
     syncOnboardingWithUser: () => {

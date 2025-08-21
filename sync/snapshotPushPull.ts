@@ -280,12 +280,7 @@ export const pullLatestSnapshot = async (): Promise<void> => {
     }
     const pullEndTime = Date.now();
     addSyncLog(`📥 Pull phase took: ${pullEndTime - pullStartTime}ms`, 'info');
-    const hydrateStartTime = Date.now();
     useRegistryStore.getState().hydrateAll(plain);
-    const hydrateEndTime = Date.now();
-    addSyncLog(`💧 Hydration took: ${hydrateEndTime - hydrateStartTime}ms`, 'info');
-    const totalTime = pullEndTime - pullStartTime;
-    addSyncLog(`📥 Total pull & hydration took: ${totalTime}ms`, 'info');
     if (debug) {
       const runId = Date.now().toString(36);
       addSyncLog(`✅ Snapshot pulled & stores hydrated  ${runId} – pull done`, 'success');

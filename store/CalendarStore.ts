@@ -58,11 +58,13 @@ export const useCalendarStore = create<CalendarState>()(
       isSyncEnabled: false,
 
       addEvent: (eventData) => {
+        console.trace(`Creating event: ${eventData.title}`);
+        addSyncLog(`📝 Creating event: ${eventData.title} (called from: ${new Error().stack?.split('\n')[2]?.trim()})`, 'info');
         const newEvent: CalendarEvent = {
           ...eventData,
           id: Math.random().toString(36).substring(2, 11),
           createdAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),  
         }
         set((state) => ({ events: [...state.events, newEvent] }))
         try {
@@ -546,7 +548,8 @@ cleanupApptEvents: () => {
       const problematicTitles = new Set(['Gym', 'Work Task 3', 'Appt']);
       
       const cleanedEvents = events.filter(event => {
-        if (problematicTitles.has(event.title)) return false;
+        if (problematicTitles.has(event.title)) 
+          return false;
         
         const eventDate = new Date(event.date);
         const daysInFuture = (eventDate.getTime() - Date.now()) / (1000 * 60 * 60 * 24);
@@ -597,30 +600,6 @@ cleanupApptEvents: () => {
             
             return !isTestEvent && !isFarFuture;
           });
-          
-          const cleanedLength = syncedData.events.length;
-          const removedCount = originalLength - cleanedLength;
-          
-          if (removedCount > 0) {
-            addSyncLog(`🧹 PREVENTIVE CLEANUP: Removed ${removedCount} test/duplicate events before processing`, 'success');
-          }
-          // Add your requested logging code here - FIXED VERSION
-          addSyncLog(`🔍 [CalendarStore] Incoming events breakdown:`, 'info', 
-            `Total: ${syncedData.events?.length || 0}, ` +
-            `Sources: ${Object.entries(
-              (syncedData.events || []).reduce((acc, e) => {
-                // Derive source from ID prefix (same logic as existing code)
-                let source = 'unknown';
-                if (e.id.startsWith('device-')) source = 'device';
-                else if (e.id.startsWith('birthday-')) source = 'app';
-                // Add task- prefix check for when we fix the task events
-                else if (e.id.startsWith('task-')) source = 'app';
-                
-                acc[source] = (acc[source] || 0) + 1;
-                return acc;
-              }, {} as Record<string, number>)
-            ).map(([k,v]) => `${k}=${v}`).join(', ')}`
-          );
 
           // Date distribution analysis
           const today = new Date();

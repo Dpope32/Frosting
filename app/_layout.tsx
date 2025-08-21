@@ -202,13 +202,8 @@ useEffect(() => {
           useTaskStore.getState().recalculateTodaysTasks();
         }, 500);
       } else if (nextAppState === 'background') {
-        addSyncLog('📤 App backgrounded – pushing merged snapshot', 'info');
         await pushSnapshot();
-        addSyncLog('✅ Background push completed', 'success');
       } else if (nextAppState === 'inactive') {
-        addSyncLog('📤 App became inactive – scheduling push with delay', 'info');
-        
-        // Handle iOS device switching scenario where app stays inactive
         setTimeout(async () => {
           if (AppState.currentState === 'inactive') {
             addSyncLog('📤 Still inactive after delay – pushing snapshot', 'info');
