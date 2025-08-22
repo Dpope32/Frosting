@@ -1,5 +1,5 @@
 import React, { useState, useRef, useMemo } from 'react'
-import { Pressable, Platform as RNPlatform, useColorScheme, Text as RNText } from 'react-native'
+import { Pressable, Platform as RNPlatform, useColorScheme, Text as RNText, Platform } from 'react-native'
 import { isWeb, Stack, Text, XStack, YStack } from 'tamagui'
 import { Ionicons } from '@expo/vector-icons'
 import * as Haptics from 'expo-haptics'
@@ -129,7 +129,7 @@ export const TaskSection = React.memo<TaskSectionProps>(({
   ), [openRecommendationModal, isDark]);
 
   return (
-    <Stack br={16} px="$0" py={isIpad() ? "$3" : "$2"} paddingBottom={"$0"} backgroundColor={backgroundColor}>
+    <Stack br={16} px="$0" py={isIpad() ? "$3" : "$2"} paddingBottom={"$0"} backgroundColor={isIpad() ? "transparent" : Platform.OS === 'android' ? backgroundColor : "transparent"}>
       <XStack
         alignItems="center"
         width="100%" 

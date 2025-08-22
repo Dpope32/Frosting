@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { YStack, XStack, Button, Text, Stack, isWeb, Label } from 'tamagui'
-import { Image, Platform, ImageSourcePropType } from 'react-native' 
-import { useColorScheme } from '@/hooks/useColorScheme'
+import { Image, Platform, ImageSourcePropType, useColorScheme } from 'react-native' 
+import { useColorScheme as useTamaguiColorScheme } from '@/hooks/useColorScheme'
 import { FormData, BackgroundStyleOption } from '@/types'
 import { useWallpaperStore } from '@/store'
 import { useCustomWallpaper } from '@/hooks'
@@ -18,6 +18,8 @@ export default function Step3({
   setFormData: React.Dispatch<React.SetStateAction<FormData>>
   backgroundStyles: BackgroundStyleOption[]
 }) {
+  const colorScheme = useColorScheme()
+  const isDark = colorScheme === 'dark'
   const [starsKey, setStarsKey] = React.useState(0);
   const { uploadCustomWallpaper, isUploading } = useCustomWallpaper();
 
@@ -97,12 +99,12 @@ useEffect(() => {
             />
           )}
           <Label 
-            ml={isWeb ? 0 : formData.profilePicture ? -50 : 10}
+            ml={isWeb ? 0 : (isIpad() && formData.profilePicture ? "$2" : (formData.profilePicture ? -50 : 10))}
             fontFamily="$heading" 
             fontWeight={isWeb ? "500" : "800"} 
             fontSize={isWeb ? "$9" : "$7"} 
             textAlign="center" 
-            color="$onboardingLabel"
+            color={isDark ? "#ffffff" : "#000000"}
           >
             Which wallpaper?
           </Label>
@@ -110,7 +112,7 @@ useEffect(() => {
         </YStack>
 
         <YStack
-          backgroundColor="$onboardingCardBackground" 
+          backgroundColor={isDark ? "rgba(0, 0, 0, 0.4)" : "rgba(255, 255, 255, 0.4)"} 
           br={24}
           borderColor={formData.primaryColor} 
           marginBottom={-40}
@@ -141,12 +143,12 @@ useEffect(() => {
                   backgroundColor={
                     isSelected
                       ? formData.primaryColor
-                      : "$onboardingButtonSecondaryBackground" 
+                      : (isDark ? "rgba(255, 255, 255, 0.08)" : "rgba(0, 0, 0, 0.05)")
                   }
                   borderColor={
                     isSelected 
                       ? buttonSelectedBorderColor 
-                      : "$onboardingButtonSecondaryBorder"
+                      : (isDark ? "rgba(255, 255, 255, 0.15)" : "rgba(0, 0, 0, 0.1)")
                   }
                   borderWidth={2}
                   br={16}
@@ -189,7 +191,7 @@ useEffect(() => {
                     fontFamily="$body" 
                     fontWeight={isSelected ? "700" : "500"}
                     fontSize={isWeb ? "$4" : isIpad() ? "$4" : "$3"} 
-                    color={isSelected ? 'white' : "$onboardingButtonSecondaryText"} 
+                    color={isSelected ? 'white' : (isDark ? "#ffffff" : "#000000")} 
                     textAlign="center"
                     letterSpacing={0.5}  
                   >
@@ -205,12 +207,12 @@ useEffect(() => {
               backgroundColor={
                 formData.backgroundStyle.startsWith('wallpaper-custom-')
                   ? formData.primaryColor
-                  : "$onboardingButtonSecondaryBackground"
+                  : (isDark ? "rgba(255, 255, 255, 0.08)" : "rgba(0, 0, 0, 0.05)")
               }
               borderColor={
                 formData.backgroundStyle.startsWith('wallpaper-custom-')
                   ? buttonSelectedBorderColor
-                  : "$onboardingButtonSecondaryBorder"
+                  : (isDark ? "rgba(255, 255, 255, 0.15)" : "rgba(0, 0, 0, 0.1)")
               }
               borderWidth={2}
               br={16}
@@ -236,7 +238,7 @@ useEffect(() => {
                 fontFamily="$body" 
                 fontWeight={formData.backgroundStyle.startsWith('wallpaper-custom-') ? "700" : "500"}
                 fontSize={isWeb ? "$4" : isIpad() ? "$4" : "$3"} 
-                color={formData.backgroundStyle.startsWith('wallpaper-custom-') ? 'white' : "$onboardingButtonSecondaryText"}
+                color={formData.backgroundStyle.startsWith('wallpaper-custom-') ? 'white' : (isDark ? "#ffffff" : "#000000")}
                 textAlign="center"
                 letterSpacing={0.5}  
               >

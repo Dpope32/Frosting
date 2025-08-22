@@ -30,7 +30,7 @@ export const GreetingSection = ({ username }: GreetingSectionProps) => {
       maxWidth={isWeb ? 600 : isIpad() ? 500 : 320}
     >
       <XStack alignItems="center" paddingRight={isWeb ? "$7" : "$0"} justifyContent="center"> 
-{isWeb ? (
+        {isWeb ? (
           <Text
             fontFamily="$body"
             fontSize={23}

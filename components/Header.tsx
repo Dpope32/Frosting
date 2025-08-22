@@ -204,7 +204,7 @@ export function Header({ title, isHome, isPermanentDrawer, drawerWidth }: Header
         {...(isWeb ? {style: { position: 'fixed' } as any} : {})}>
         <YStack
           marginLeft={isPermanentDrawer ? drawerWidth : 0}
-          borderBottomWidth={0.5}
+          borderBottomWidth={isIpad() ? 0 : 0.5}
           borderColor={isDark ? "rgba(255, 255, 255, 0.1)" : "rgba(0,0,0,0.01)"}
           backgroundColor={backgroundColor}>
           <XStack

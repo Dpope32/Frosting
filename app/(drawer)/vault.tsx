@@ -77,8 +77,7 @@ export default function VaultScreen() {
       }, index * 200);
     });
   };
-
-  // Split items into two columns for iPad landscape
+  
   const items = data?.items || []
   const leftColumnItems = items.filter((_, idx) => idx % 2 === 0)
   const rightColumnItems = items.filter((_, idx) => idx % 2 === 1)

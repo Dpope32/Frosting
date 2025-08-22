@@ -53,18 +53,18 @@ export default function Step0({
         autoFocus={Platform.OS === 'ios' || Platform.OS === 'android'}
         autoCapitalize="words"
         backgroundColor="transparent"
-        borderColor="$onboardingInputBorder"
+        borderColor={isDark ? "rgba(255, 255, 255, 0.3)" : "rgba(0, 0, 0, 0.2)"}
         autoComplete="off"
         borderWidth={2}
         borderRadius={12}
         autoCorrect={false}
-        color="$onboardingInputText"
+        color={isDark ? "#ffffff" : "#000000"}
         fontWeight="700"
-        placeholderTextColor="$onboardingPlaceholder"
+        placeholderTextColor={isDark ? "rgba(255, 255, 255, 0.6)" : "rgba(0, 0, 0, 0.5)"}
         fontFamily="$body"
         textAlign="center"
         focusStyle={{
-          borderColor: isDark ? "$onboardingInputBorder" : "#999999",
+          borderColor: isDark ? "rgba(255, 255, 255, 0.5)" : "rgba(0, 0, 0, 0.4)",
         }}
         style={{  textAlign: 'center', alignSelf: 'center',  maxWidth: isWeb ? 350 : isIpad() ? 300 : 250, width: isWeb ? 300 : isIpad() ? 250 : 220, height: isWeb ? 55 : isIpad() ? 50 : 43}}
       />

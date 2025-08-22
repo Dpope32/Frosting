@@ -30,7 +30,7 @@ export default function Onboarding() {
   const [formData, setFormData] = useState<FormData>({
     username: '',
     profilePicture: '',
-    primaryColor: isDark ? '$gray5' : '$blue9',  
+    primaryColor: isDark ? '#6B7280' : '#1976D2',  
     backgroundStyle: 'wallpaper-Abstract',
     zipCode: '',
   })
@@ -201,10 +201,10 @@ export default function Onboarding() {
   }
 
   const getButtonColor = () => {
-    if (step < 2) {
-      return canProceed() ? '$blue9' : '$gray5';
-    }
-    return formData.primaryColor || '$onboardingButtonPrimary'; 
+    const result = step < 2 
+      ? (canProceed() ? '#1976D2' : (isDark ? 'rgba(255, 255, 255, 0.1)' : 'rgba(0, 0, 0, 0.1)'))
+      : (formData.primaryColor || '#1976D2');
+    return result;
   }
   
   const getButtonTextColor = () => {
@@ -246,19 +246,19 @@ export default function Onboarding() {
                     zIndex: 10 
                   }}> 
                   <XStack gap="$3" justifyContent="center" maxWidth={isWeb ? 750 : 500} alignSelf="center" width="100%">
-                    {step >= 0 && (
+                    {step >= 1 && (
                       <Button
                         flex={1}
                         width={isWeb ? 300 : isIpad() ? 150 : 100}
                         height={isWeb ? 55 : isIpad() ? 50 : 43}
                         variant="outlined"
                         onPress={handleBack}
-                        backgroundColor="$onboardingIndexButtonBackground" 
-                        borderColor="$onboardingIndexButtonBorder"
+                        backgroundColor={isDark ? "rgba(255, 255, 255, 0.05)" : "rgba(0, 0, 0, 0.02)"} 
+                        borderColor={isDark ? "rgba(255, 255, 255, 0.2)" : "rgba(0, 0, 0, 0.15)"}
                         justifyContent="center"
                         alignItems="center"
                       > 
-                        <Text fontFamily="$body" color="$onboardingIndexButtonText" fontSize={14} fontWeight="bold">Back</Text> 
+                        <Text fontFamily="$body" color={isDark ? "#ffffff" : "#000000"} fontSize={14} fontWeight="bold">Back</Text> 
                       </Button>
                     )}
                     <Button
@@ -266,7 +266,7 @@ export default function Onboarding() {
                       width={isWeb ? 300 : isIpad() ? 150 : 100}
                       height={isWeb ? 50 : isIpad() ? 50 : 43}
                       backgroundColor={getButtonColor()} 
-                      borderColor="$onboardingIndexButtonBorder" 
+                      borderColor={getButtonColor()}
                       borderWidth={1}
                       opacity={1}
                       disabled={!canProceed()}
@@ -308,16 +308,16 @@ export default function Onboarding() {
                       width={120}
                       height={50}
                       onPress={handleBack}
-                      backgroundColor="$onboardingIndexButtonBackground" 
-                      borderColor="$onboardingIndexButtonBorder"> 
-                      <Text fontFamily="$body" fontSize={isWeb ? 18 : 14} fontWeight="500" color="$onboardingIndexButtonText">Back</Text> 
+                      backgroundColor={isDark ? "rgba(255, 255, 255, 0.05)" : "rgba(0, 0, 0, 0.02)"} 
+                      borderColor={isDark ? "rgba(255, 255, 255, 0.2)" : "rgba(0, 0, 0, 0.15)"}> 
+                      <Text fontFamily="$body" fontSize={isWeb ? 18 : 14} fontWeight="500" color={isDark ? "#ffffff" : "#000000"}>Back</Text> 
                     </Button>
                   )}
                   <Button
                     width={isWeb ? 300 : isIpad() ? 150 : 100}
                     height={isWeb ? 52 : isIpad() ? 50 : 43}
                     backgroundColor={getButtonColor()} 
-                    borderColor="$onboardingIndexButtonBorder" 
+                    borderColor={getButtonColor()}
                     borderWidth={1}
                     opacity={1}
                     disabled={!canProceed()}

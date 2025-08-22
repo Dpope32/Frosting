@@ -18,7 +18,7 @@ export function SettingsCard({ isHome, isDark, onPress }: SettingsCardProps) {
   if (isWeb) {
     bg = "rgba(0, 0, 0, 0.0)";
   } else if (isIpad()) {
-    bg = "rgba(0, 0, 0, 0.3)";
+    bg = isDark ? "rgba(0, 0, 0, 0.5)" : "rgba(0, 0, 0, 0.3)";
   } else {
     bg = "rgba(0, 0, 0, 0.0)";
   }

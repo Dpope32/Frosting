@@ -192,12 +192,12 @@ export const VaultCard = ({
                 Password:
               </Text>
               <Text color={isDark ? '#f3f3f3' : '#000'} fontSize={isWeb ? "$5" : isIpad() ? 15 : 15} flex={1} fontFamily="$body">
-                {visiblePasswords[cred.id] ? cred.password : '••••••••••••••••'}
+                {visiblePasswords[cred.id] ? cred.password : '••••••••'}
               </Text>
               <Button
                 size="$2"
                 bg="transparent"
-                mr="$-3"
+                mr={isIpad() ? "$2" : "$-3"}
                 pressStyle={{ scale: 0.9 }}
                 onPress={() => togglePasswordVisibility(cred.id)}
                 icon={

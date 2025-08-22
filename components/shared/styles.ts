@@ -20,10 +20,10 @@ export const useDrawerStyles = () => {
       flex: 1,
       backfaceVisibility: 'hidden',
       transform: [{ perspective: 1000 }],
-      marginTop: !!isIpad() ? -12 : 0,
+      marginTop: !!isIpad() ? -20 : 0,
     },
     header: {
-      paddingTop: isWeb ? (!!isIpad() ? 20 : 16) : 50,
+      paddingTop: isWeb ? (!!isIpad() ? 5 : 16) : 50,
       paddingBottom: isWeb ? (!!isIpad() ? 10 : 0) : 4,
       paddingHorizontal: isWeb ? (!!isIpad() ? 20 : 16) : 24,
       flexDirection: 'row',
@@ -40,7 +40,7 @@ export const useDrawerStyles = () => {
     },
     username: {
       color: textColor,
-      fontSize: 18,
+      fontSize: isWeb ? 21 : (!!isIpad() ? 24 : 20),
       fontWeight: '600'
     },
     content: {

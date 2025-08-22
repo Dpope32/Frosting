@@ -1,6 +1,6 @@
 import React from 'react'
 import { YStack, Text, Button, Circle, isWeb } from 'tamagui'
-import { Image } from 'react-native'
+import { Image, useColorScheme } from 'react-native'
 import { FormData } from '@/types'
 import { useUserStore } from '@/store'
 import { isIpad } from '@/utils'
@@ -16,7 +16,8 @@ export default function Step1({
   pickImage: () => void
   handleNext: () => void
 }) {
-
+  const colorScheme = useColorScheme()
+  const isDark = colorScheme === 'dark'
   const defaultIcon = { icon: '👤', label: 'Default User' };
 
   return (
@@ -34,13 +35,13 @@ export default function Step1({
         <Circle
           size={180}
           borderWidth={2}
-          borderColor="$onboardingInputBorder"
+          borderColor={isDark ? "rgba(255, 255, 255, 0.3)" : "rgba(0, 0, 0, 0.2)"}
           borderStyle="dashed"
-          backgroundColor="$onboardingStep1Background"
+          backgroundColor={isDark ? "rgba(255, 255, 255, 0.05)" : "rgba(0, 0, 0, 0.02)"}
           onPress={pickImage}
           pressStyle={{
             scale: 0.98,
-            backgroundColor: '$onboardingStep1HoverBackground',
+            backgroundColor: isDark ? "rgba(255, 255, 255, 0.08)" : "rgba(0, 0, 0, 0.05)",
           }}
           {...(isWeb && {
             style: {
@@ -56,10 +57,10 @@ export default function Step1({
             />
           ) : (
             <YStack alignItems="center" gap="$2">
-              <Circle size={60} backgroundColor="$onboardingStep1CircleBackground">
+              <Circle size={60} backgroundColor={isDark ? "rgba(255, 255, 255, 0.1)" : "rgba(0, 0, 0, 0.1)"}>
                 <Text fontFamily="$body" fontSize={24}>{defaultIcon.icon}</Text>
               </Circle>
-              <Text color="$onboardingSubText" fontFamily="$heading" fontWeight="700">
+              <Text color={isDark ? "rgba(255, 255, 255, 0.7)" : "rgba(0, 0, 0, 0.6)"} fontFamily="$heading" fontWeight="700">
                 Profile Picture
               </Text>
             </YStack>

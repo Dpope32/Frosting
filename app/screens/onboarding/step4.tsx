@@ -22,7 +22,6 @@ export default function Step4({
   const [zipError, setZipError] = useState<string | null>(null);
   const [isValidating, setIsValidating] = useState(false);
 
-
   useEffect(() => {
     if (!formData.zipCode) {
       setZipError(null);
@@ -48,7 +47,7 @@ export default function Step4({
           size={isWeb ? "$9" : "$8"}
           fontWeight={isWeb ? "500" : "800"} 
           textAlign="center"
-          color="$onboardingLabel" 
+          color={isDark ? "#ffffff" : "#000000"} 
         >
           Do you want to see weather?
         </Label>
@@ -56,7 +55,7 @@ export default function Step4({
           fontFamily="$body"
           fontSize={isWeb ? 18 : "$3"}
           textAlign="center"
-          color="$onboardingSubText" 
+          color={isDark ? "rgba(255, 255, 255, 0.7)" : "rgba(0, 0, 0, 0.6)"} 
           mt={-12}
           opacity={0.8}
           fontWeight="400"
@@ -81,18 +80,18 @@ export default function Step4({
           maxLength={5}
           autoFocus
           backgroundColor="transparent"
-          borderColor={zipError ? "$onboardingError" : "$onboardingInputBorder"} 
-          color="$onboardingInputText"
-          placeholderTextColor={"$onboardingInputBorder"}
+          borderColor={zipError ? "#DC2626" : (isDark ? "rgba(255, 255, 255, 0.3)" : "rgba(0, 0, 0, 0.2)")} 
+          color={isDark ? "#ffffff" : "#000000"}
+          placeholderTextColor={isDark ? "rgba(255, 255, 255, 0.6)" : "rgba(0, 0, 0, 0.5)"}
           textAlign="center"
           letterSpacing={1}
           borderWidth={1.25}
           fontSize={16}
-          shadowColor="$onboardingInputBorder" 
+          shadowColor={isDark ? "rgba(255, 255, 255, 0.3)" : "rgba(0, 0, 0, 0.2)"} 
           shadowRadius={20}
           shadowOpacity={0.2}
           focusStyle={{
-            borderColor: zipError ? "$onboardingError" : (isDark ? "$onboardingInputBorder" : "#999999"), 
+            borderColor: zipError ? "#DC2626" : (isDark ? "rgba(255, 255, 255, 0.5)" : "rgba(0, 0, 0, 0.4)"), 
             scale: 1.02,
           }}
           width={isWeb ? 300 : isIpad() ? 300 : "70%"}
@@ -101,7 +100,7 @@ export default function Step4({
         
         {zipError && (
           <Text
-            color="$onboardingError" 
+            color="#DC2626" 
             fontSize={14}
             mt={8}
             textAlign="center"
@@ -116,12 +115,11 @@ export default function Step4({
         <Button
           chromeless
           onPress={() => {
-            // set fallback zip and disable temperature card
             setFormData(prev => ({ ...prev, zipCode: FALLBACK_ZIP_CODES.DEFAULT }));
             setPreferences({ zipCode: FALLBACK_ZIP_CODES.DEFAULT, temperatureEnabled: false });
             handleNext();
           }}
-          color="$onboardingButtonPrimary"
+          color={formData.primaryColor || "#1976D2"}
         >
           Or skip for now
         </Button>
