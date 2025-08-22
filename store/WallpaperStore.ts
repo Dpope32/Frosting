@@ -147,6 +147,12 @@ export const useWallpaperStore = create<WallpaperStore>()(
           return cachedPath; 
         }
         
+        // Only local file URIs are valid for FileSystem.getInfoAsync; treat others as missing
+        if (typeof cachedPath === 'string' && !cachedPath.startsWith('file://')) {
+          addSyncLog(`⚠️ [WallpaperStore] Cached path is not a file URI; treating as missing`, 'warning', cachedPath);
+          return null;
+        }
+
         try {
           const fileInfo = await FileSystem.getInfoAsync(cachedPath);
           if (fileInfo.exists) {
@@ -344,29 +350,36 @@ export const useWallpaperStore = create<WallpaperStore>()(
                 await get().cacheWallpaper(wallpaperKey, wallpaper.uri);
                 redownloadedCount++;
               } else {
-                try {
-                  const fileInfo = await FileSystem.getInfoAsync(cachedPath);
-                  if (!fileInfo.exists) {
-                    addSyncLog(`📥 [WallpaperStore] Redownloading missing file for wallpaper: ${wallpaperKey}`, 'info');
-                    
-                    Sentry.addBreadcrumb({
-                      category: 'wallpaper',
-                      message: `Redownloading missing file for wallpaper: ${wallpaperKey}`,
-                      level: 'info',
+                // If cached path is not a local file, re-cache to documents and skip file check
+                if (typeof cachedPath === 'string' && !cachedPath.startsWith('file://')) {
+                  addSyncLog(`📥 [WallpaperStore] Cached path is remote; redownloading to local file`, 'info', cachedPath);
+                  await get().cacheWallpaper(wallpaperKey, wallpaper.uri);
+                  redownloadedCount++;
+                } else {
+                  try {
+                    const fileInfo = await FileSystem.getInfoAsync(cachedPath);
+                    if (!fileInfo.exists) {
+                      addSyncLog(`📥 [WallpaperStore] Redownloading missing file for wallpaper: ${wallpaperKey}`, 'info');
+                      
+                      Sentry.addBreadcrumb({
+                        category: 'wallpaper',
+                        message: `Redownloading missing file for wallpaper: ${wallpaperKey}`,
+                        level: 'info',
+                      });
+                      
+                      await get().cacheWallpaper(wallpaperKey, wallpaper.uri);
+                      redownloadedCount++;
+                    }
+                  } catch (error) {
+                    addSyncLog(`❌ [WallpaperStore] Error checking wallpaper ${wallpaperKey}`, 'error', error instanceof Error ? error.message : String(error));
+                    Sentry.captureException(error, {
+                      extra: {
+                        wallpaperKey,
+                        cachedPath,
+                        operation: 'checkAndRedownloadWallpapers',
+                      },
                     });
-                    
-                    await get().cacheWallpaper(wallpaperKey, wallpaper.uri);
-                    redownloadedCount++;
                   }
-                } catch (error) {
-                  addSyncLog(`❌ [WallpaperStore] Error checking wallpaper ${wallpaperKey}`, 'error', error instanceof Error ? error.message : String(error));
-                  Sentry.captureException(error, {
-                    extra: {
-                      wallpaperKey,
-                      cachedPath,
-                      operation: 'checkAndRedownloadWallpapers',
-                    },
-                  });
                 }
               }
             }

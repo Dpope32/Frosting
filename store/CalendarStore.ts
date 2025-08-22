@@ -285,7 +285,9 @@ cleanupApptEvents: () => {
           try {
             const contacts = usePeopleStore.getState().contacts as Record<string, Person>
             const currentYear = new Date().getFullYear()
-            const contactsToSync = newContactId ? { [newContactId]: contacts[newContactId] } : contacts
+            const contactsToSync = newContactId ? 
+            (contacts[newContactId] ? { [newContactId]: contacts[newContactId] } : {}) : 
+            contacts
             const nonBirthdayEvents = state.events.filter(
               (event) => event.type !== 'birthday' || (newContactId && event.personId !== newContactId)
             )

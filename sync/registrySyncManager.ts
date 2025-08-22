@@ -71,10 +71,6 @@ export const exportEncryptedState = async (allStates: Record<string, any>): Prom
   
   if (allStates.tasks?.tasks) {
     const tasks = Object.values(allStates.tasks.tasks) as any[];
-    const today = format(new Date(), 'yyyy-MM-dd'); 
-    
-
-      // 🚨 DEBUG: Show what dates DO have completion data
       const tasksWithAnyCompletion = tasks.filter(task => 
         task.completionHistory && Object.keys(task.completionHistory).length > 0
       );
@@ -83,28 +79,18 @@ export const exportEncryptedState = async (allStates: Record<string, any>): Prom
         tasksWithAnyCompletion.forEach(task => {
           Object.keys(task.completionHistory || {}).forEach(date => allCompletionDates.add(date));
         });
-       // addSyncLog(
-       //   `[EXPORT DEBUG] Found completion history for dates: ${Array.from(allCompletionDates).sort().join(', ')}`,
-       //   'warning',
-       //   `🚨 But NO completion data for today (${today}). Tasks with completion history: ${tasksWithAnyCompletion.length}. Check date format consistency!`
-       // );
       }
   }
   
   try {
-    const keyTimer = Date.now();
     const wsId = await getCurrentWorkspaceId();
     
-    // Use the correct key source
     const key = wsId ? await getWorkspaceKey() : await generateSyncKey();
     if (!key) {
       addSyncLog('Failed to generate or retrieve encryption key', 'error');
       throw new Error('Failed to generate or retrieve encryption key');
     }
-    const keyTime = Date.now() - keyTimer;
-    addSyncLog(`🔑 [EXPORT] Key generation took ${keyTime}ms`, keyTime > 100 ? 'warning' : 'verbose');
-    
-      // 🔧 IMPORTANT: Ensure we're encrypting the EXACT data we just verified
+
       const uint8ArrayToBase64 = (bytes: Uint8Array): string => {
         let binary = '';
         for (let i = 0; i < bytes.length; i++) {
@@ -114,14 +100,12 @@ export const exportEncryptedState = async (allStates: Record<string, any>): Prom
       };
       
       const jsonString = JSON.stringify(allStates);
-      const compressed = pako.deflate(jsonString); // Returns Uint8Array
+      const compressed = pako.deflate(jsonString);
       const compressedString = uint8ArrayToBase64(compressed);
       const cipher = encryptSnapshot(compressedString, key);
       
-      addSyncLog(`Pako Compression: ${(jsonString.length/1024).toFixed(1)}KB → ${(compressed.length/1024).toFixed(1)}KB (${((compressed.length/jsonString.length)*100).toFixed(1)}% of original)`, 'info');
+      addSyncLog(`${(jsonString.length/1024).toFixed(1)}KB → ${(compressed.length/1024).toFixed(1)}KB (${((compressed.length/jsonString.length)*100).toFixed(1)}% of original)`, 'info');
           
-    // PERFORMANCE TIMING: File write operation
-    const writeTimer = Date.now();
     let uri: string;  
     if (Platform.OS === 'web') {
       if (typeof window !== 'undefined' && window.localStorage) {

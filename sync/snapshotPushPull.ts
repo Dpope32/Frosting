@@ -92,7 +92,7 @@ export const pushSnapshot = async (): Promise<void> => {
         );
       }
     } else {
-      addSyncLog('⏸️  export skipped – <10 s since last', 'verbose');
+      addSyncLog('⏸Export skipped – <10 s since last', 'verbose');
     }
 
     // Web compatibility: read from localStorage instead of FileSystem

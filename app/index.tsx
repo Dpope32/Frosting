@@ -66,7 +66,7 @@ export default function Index() {
         useTagStore.persist.hasHydrated(),
       ]);
       await useNoteStore.getState().loadNotes();
-  
+
       const hydrationTime = Date.now();
       const hydrationDuration = hydrationTime - overallStartTime; 
 
@@ -74,32 +74,38 @@ export default function Index() {
       startInitialSync();
       
       // 🧹 ONE-TIME CLEANUP: Remove duplicates BEFORE export captures state
+      const cleanupStart = Date.now();
       await useCalendarStore.getState().cleanupServerSnapshot();
+      const cleanupDuration = Date.now() - cleanupStart;
       addSyncLog(`🧹 Pre-export cleanup completed`, 'success');
       
-      const exportStartTime = Date.now();
-      const state = getAllStoreStates();
-      await exportEncryptedState(state);
-       // this is where i will add the option for users to skip the sync on the sync rendering screen
-  
-      const exportEndTime = Date.now();
-      const exportDuration = exportEndTime - exportStartTime;
-              addSyncLog(`💾 Export phase completed in ${(exportDuration/1000).toFixed(1)}s`, 'info');
-  
+      let precheckDuration = 0;
       if (finishedOnboarding) {
+        // 🚀 CHECK SAME DEVICE FIRST - before expensive export
         const checkStartTime = Date.now();
         const isAlreadyUpToDate = await checkIfAlreadyUpToDate();
-        const checkDuration = Date.now() - checkStartTime;
+        precheckDuration = Date.now() - checkStartTime;
         
         if (isAlreadyUpToDate) {
           const totalTime = Date.now() - overallStartTime;
-          addSyncLog(`⚡ Quick startup (already up to date): ${(totalTime/1000).toFixed(1)}s (${checkDuration}ms check)`, 'success');
+          addSyncLog(`⚡ Same device detected - skipping export and sync: ${(totalTime/1000).toFixed(1)}s (${precheckDuration}ms check)`, 'success');
           completeInitialSync();
           useToastStore.getState().showToast('Already up to date', 'success');
-          return;
+          return; // Skip export entirely
         }
-
+        
         addSyncLog(`New Data detected on server, syncing...`, 'info');
+      }
+      
+      // Only export if different device or no onboarding
+      const exportStartTime = Date.now();
+      const state = getAllStoreStates();
+      await exportEncryptedState(state);
+      const exportEndTime = Date.now();
+      const exportDuration = exportEndTime - exportStartTime;
+      addSyncLog(`💾 Export phase completed in ${(exportDuration/1000).toFixed(1)}s`, 'info');
+
+      if (finishedOnboarding) {
         const pullStartTime = Date.now();
         await pullLatestSnapshot();
         const pullEndTime = Date.now();
@@ -112,9 +118,15 @@ export default function Index() {
         const pushDuration = pushEndTime - pushStartTime;
         const totalTime = Date.now() - overallStartTime;
 
-        addSyncLog(`App startup breakdown: Push=${(pushDuration/1000).toFixed(1)}s, Pull=${(pullDuration/1000).toFixed(1)}s, Hydration+Export=${(hydrationDuration/1000).toFixed(1)}s, Total=${(totalTime/1000).toFixed(1)}s`, 'info');
+        const s = (ms: number) => (ms/1000).toFixed(1);
+        const sumMs = pushDuration + pullDuration + hydrationDuration + exportDuration + cleanupDuration + precheckDuration;
+        const otherMs = Math.max(0, totalTime - sumMs);
+        addSyncLog(
+          `App startup breakdown: Hydration=${s(hydrationDuration)}s, Pre-cleanup=${s(cleanupDuration)}s, Pre-check=${s(precheckDuration)}s, Export=${s(exportDuration)}s, Pull=${s(pullDuration)}s, Push=${s(pushDuration)}s, Other=${s(otherMs)}s, Total=${s(totalTime)}s`,
+          'info'
+        );
         completeInitialSync();
-        useToastStore.getState().showToast('Synced with workspace', 'success');
+        useToastStore.getState().showToast('Welcome back!', 'success');
       } else {
         completeInitialSync();
       }

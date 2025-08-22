@@ -102,14 +102,6 @@ export default function CollapsedView({
         hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
         delayPressIn={0}
         delayPressOut={100}
-        onPressIn={() => {
-
-           addSyncLog(`👇 Touch started: ${person.name}`, 'verbose');
-
-        }}
-        onPressOut={() => {
-          addSyncLog(`👆 Touch ended: ${person.name}`, 'verbose');
-        }}
       >
         <View
           style={[
