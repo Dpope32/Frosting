@@ -25,6 +25,7 @@ import { useUserStore } from "@/store";
 import { useToastStore } from "@/store/ToastStore";
 import { DRAWER_ICONS } from "@/constants";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
+// @ts-ignore
 import { DrawerActions } from "@react-navigation/native";
 
 export const DrawerContent = memo(

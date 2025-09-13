@@ -3,7 +3,7 @@ import { useNetworkStore } from '@/store';
 import { getWifiDetails } from '@/services';
 
 const CHECK_INTERVAL = 1000 * 60; 
-const CONNECTION_TEST_TIMEOUT = 5000; 
+const CONNECTION_TEST_TIMEOUT = 10000; // Increased timeout for larger download 
 
 export function useNetworkSpeed() {
   const { details, isLoading, fetchNetworkInfo, startNetworkListener } = useNetworkStore();
@@ -14,10 +14,10 @@ export function useNetworkSpeed() {
   const isConnected = details?.isConnected ?? false;
   const isWifi = details?.type === 'wifi';
 
-  const measureNetworkSpeed = async (): Promise<number> => {
+  const measureLatency = async (): Promise<number> => {
     const testFileUrl = 'https://www.cloudflare.com/cdn-cgi/trace';
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), CONNECTION_TEST_TIMEOUT);
+    const timeoutId = setTimeout(() => controller.abort(), 5000);
     try {
       const startTime = Date.now();
       const response = await fetch(testFileUrl, {
@@ -45,6 +45,46 @@ export function useNetworkSpeed() {
     }
   };
 
+  const measureThroughput = async (): Promise<number> => {
+    // Use a larger test file for throughput measurement
+    const testFileUrl = 'https://speed.cloudflare.com/__down?bytes=10485760'; // 10MB test file
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), CONNECTION_TEST_TIMEOUT);
+    
+    try {
+      const startTime = Date.now();
+      const response = await fetch(testFileUrl, {
+        method: 'GET',
+        cache: 'no-store',
+        signal: controller.signal
+      });
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      
+      // Get content length from headers or use known size
+      const contentLength = response.headers.get('content-length');
+      const fileSizeBytes = contentLength ? parseInt(contentLength, 10) : 10485760; // Default 10MB
+      
+      // Download the file
+      const data = await response.arrayBuffer();
+      clearTimeout(timeoutId);
+      const endTime = Date.now();
+      
+      // Calculate throughput in Mbps
+      const durationMs = endTime - startTime;
+      const durationSeconds = durationMs / 1000;
+      const fileSizeBits = fileSizeBytes * 8;
+      const throughputMbps = (fileSizeBits / durationSeconds) / 1000000; // Convert to Mbps
+      
+      return throughputMbps;
+    } catch (error) {
+      clearTimeout(timeoutId);
+      throw error;
+    }
+  };
+
   const checkConnection = async (isMounted: boolean) => {
     if (!isMounted) return;
     if (!isConnected) {
@@ -63,8 +103,8 @@ export function useNetworkSpeed() {
       return; 
     }
     try {
-      const measuredDuration = await measureNetworkSpeed();
-      const speedDisplay = `${measuredDuration} ms`;
+      const measuredThroughput = await measureThroughput();
+      const speedDisplay = `${Math.round(measuredThroughput)} Mbps`;
       if (isMounted) {
         setNetworkState({
           speed: speedDisplay,
