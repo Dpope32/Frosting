@@ -30,8 +30,8 @@ const BROWSER_HEADERS = {
 
 // PocketBase configuration
 const POCKETBASE_URLS = [
-  'https://fedora.tail557534.ts.net',
-  'http://192.168.1.32:8090'
+  'https://fedora.tail557534.ts.net/pb',
+  'http://192.168.0.177:8090'
 ];
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {

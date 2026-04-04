@@ -1,5 +1,15 @@
 export const CHANGELOG = [
   {
+    version: '1.2.79',
+    date: '2026-04-04',
+    notes: 'Connectivity Fix',
+    bullets: [
+      'Fixed PocketBase unreachable from mobile when off-network',
+      'Updated server URLs to use correct Tailscale Funnel path',
+      'Updated LAN fallback IP after server relocation',
+    ],
+  },
+  {
     version: '1.2.54',
     date: '2025-07-21',
     notes: 'Bug Fixes',

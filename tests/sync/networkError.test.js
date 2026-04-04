@@ -9,7 +9,7 @@
 global.fetch = jest.fn();
 
 // A minimal implementation of the key functions we want to test
-const checkPocketBaseHealth = async (url = 'https://fedora.tail557534.ts.net') => {
+const checkPocketBaseHealth = async (url = 'https://fedora.tail557534.ts.net/pb') => {
   try {
     // Check if server is reachable
     const response = await fetch(`${url}/api/health`, {
