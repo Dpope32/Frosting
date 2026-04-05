@@ -17,6 +17,7 @@ type TodayForecastProps = {
 
 export default function TodayForecast({ isDark, todayPrecipitation }: TodayForecastProps) {
   const forecastPeriods = useWeatherStore((s) => s.forecast);
+  const currentTemp = useWeatherStore((s) => s.currentTemp);
   const todayForecast = forecastPeriods && forecastPeriods.length > 0 ? forecastPeriods[0] : null;
 
   const isNight = useMemo(() => {
@@ -108,8 +109,8 @@ export default function TodayForecast({ isDark, todayPrecipitation }: TodayForec
               <Text fontSize={isWeb ? 15 : isIpad() ? 15 : 13} color={textColor} fontWeight="500" style={{ marginRight: 2 }} fontFamily="$body">
                 Now
               </Text>
-              <Text fontSize={isIpad() ? 22 : 18} fontWeight="600" color={getTemperatureColor(todayForecast.temperature ?? 0, isDark)} style={{ minWidth: 38, textAlign: 'right', letterSpacing: -1 }} fontFamily="$body">
-                {todayForecast.temperature !== null ? `${todayForecast.temperature}°` : 'N/A'}
+              <Text fontSize={isIpad() ? 22 : 18} fontWeight="600" color={getTemperatureColor(currentTemp ?? todayForecast.temperature ?? 0, isDark)} style={{ minWidth: 38, textAlign: 'right', letterSpacing: -1 }} fontFamily="$body">
+                {currentTemp !== null ? `${currentTemp}°` : (todayForecast.temperature !== null ? `${todayForecast.temperature}°` : 'N/A')}
               </Text>
             </XStack>
           </XStack>

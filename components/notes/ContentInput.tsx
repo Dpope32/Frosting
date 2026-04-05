@@ -1,5 +1,5 @@
-import React, { forwardRef, useState, useEffect, useRef } from 'react';
-import { TextInput, Platform, StyleSheet, NativeSyntheticEvent, TextInputSelectionChangeEventData, View, Keyboard } from 'react-native';
+import React, { forwardRef, useState, useEffect } from 'react';
+import { TextInput, Platform, StyleSheet, NativeSyntheticEvent, TextInputSelectionChangeEventData, View } from 'react-native';
 import { useColorScheme } from '@/hooks/useColorScheme';
 import { isIpad } from '@/utils';
 
@@ -17,7 +17,7 @@ export const ContentInput = forwardRef<TextInput, ContentInputProps>(({
   onChangeText,
   placeholder = "Start typing...",
   onSelectionChange,
-  minHeight = isIpad() ? 500 : 300
+  minHeight = isIpad() ? 500 : Platform.OS === 'web' ? 750 : 300
 }, ref) => {
   const colorScheme = useColorScheme();
   const isDark = colorScheme === 'dark';

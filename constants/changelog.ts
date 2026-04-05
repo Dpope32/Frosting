@@ -1,5 +1,15 @@
 export const CHANGELOG = [
   {
+    version: '1.2.80',
+    date: '2026-04-05',
+    notes: 'Happy Easter!',
+    bullets: [
+      'Added hundreds of stocks to the app for users to search and add to their portfolio',
+      'Fixed temperature display showing day high/low instead of actual current temperature',
+      'Top panel and weather modal now both show the real-time hourly temperature',
+    ],
+  },
+  {
     version: '1.2.79',
     date: '2026-04-04',
     notes: 'Connectivity Fix',

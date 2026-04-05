@@ -138,6 +138,68 @@ export const getIconForStock = (symbol: string) => {
       'K': { Component: MaterialCommunityIcons, name: 'corn', type: 'material' },
       'HSY': { Component: MaterialCommunityIcons, name: 'candy', type: 'material' },
       'TSN': { Component: MaterialCommunityIcons, name: 'food-drumstick', type: 'material' },
+
+      // Critical Minerals & Mining
+      'UAMY': { Component: MaterialCommunityIcons, name: 'diamond-stone', type: 'material' },
+      'CRML': { Component: MaterialCommunityIcons, name: 'diamond-stone', type: 'material' },
+      'UUUU': { Component: MaterialCommunityIcons, name: 'radioactive', type: 'material' },
+      'MP': { Component: MaterialCommunityIcons, name: 'magnet', type: 'material' },
+      'PPTA': { Component: MaterialCommunityIcons, name: 'pickaxe', type: 'material' },
+      'USAR': { Component: MaterialCommunityIcons, name: 'earth', type: 'material' },
+      'CCJ': { Component: MaterialCommunityIcons, name: 'radioactive', type: 'material' },
+      'UEC': { Component: MaterialCommunityIcons, name: 'atom', type: 'material' },
+      'DNN': { Component: MaterialCommunityIcons, name: 'atom-variant', type: 'material' },
+      'NXE': { Component: MaterialCommunityIcons, name: 'radioactive', type: 'material' },
+      'LEU': { Component: MaterialCommunityIcons, name: 'atom', type: 'material' },
+      'PLL': { Component: MaterialCommunityIcons, name: 'battery-charging', type: 'material' },
+      'VALE': { Component: MaterialCommunityIcons, name: 'pickaxe', type: 'material' },
+      'RIO': { Component: MaterialCommunityIcons, name: 'pickaxe', type: 'material' },
+      'BHP': { Component: MaterialCommunityIcons, name: 'pickaxe', type: 'material' },
+      'GOLD': { Component: MaterialCommunityIcons, name: 'gold', type: 'material' },
+      'LAC': { Component: MaterialCommunityIcons, name: 'battery', type: 'material' },
+
+      // Defense, Drones & Space
+      'KTOS': { Component: MaterialCommunityIcons, name: 'shield-airplane', type: 'material' },
+      'AVAV': { Component: MaterialCommunityIcons, name: 'quadcopter', type: 'material' },
+      'JOBY': { Component: MaterialCommunityIcons, name: 'helicopter', type: 'material' },
+      'ONDS': { Component: MaterialCommunityIcons, name: 'quadcopter', type: 'material' },
+      'ACHR': { Component: MaterialCommunityIcons, name: 'airplane', type: 'material' },
+      'RKLB': { Component: MaterialCommunityIcons, name: 'rocket-launch', type: 'material' },
+      'LUNR': { Component: MaterialCommunityIcons, name: 'moon-waning-crescent', type: 'material' },
+      'ASTS': { Component: MaterialCommunityIcons, name: 'satellite-variant', type: 'material' },
+      'RDW': { Component: MaterialCommunityIcons, name: 'satellite-uplink', type: 'material' },
+      'BWXT': { Component: MaterialCommunityIcons, name: 'shield-star', type: 'material' },
+      'BLDE': { Component: MaterialCommunityIcons, name: 'helicopter', type: 'material' },
+      'LDOS': { Component: MaterialCommunityIcons, name: 'shield-check', type: 'material' },
+      'HII': { Component: MaterialCommunityIcons, name: 'ferry', type: 'material' },
+
+      // Energy Storage & Clean Energy
+      'EOSE': { Component: MaterialCommunityIcons, name: 'battery-high', type: 'material' },
+      'SMR': { Component: MaterialCommunityIcons, name: 'atom', type: 'material' },
+      'OKLO': { Component: MaterialCommunityIcons, name: 'atom-variant', type: 'material' },
+      'BE': { Component: MaterialCommunityIcons, name: 'fuel-cell', type: 'material' },
+      'QS': { Component: MaterialCommunityIcons, name: 'battery-charging-high', type: 'material' },
+      'ENVX': { Component: MaterialCommunityIcons, name: 'battery-plus', type: 'material' },
+      'PLUG': { Component: MaterialCommunityIcons, name: 'hydrogen-station', type: 'material' },
+      'FCEL': { Component: MaterialCommunityIcons, name: 'fuel-cell', type: 'material' },
+
+      // AI & Data Centers
+      'APLD': { Component: MaterialCommunityIcons, name: 'server-network', type: 'material' },
+      'VRT': { Component: MaterialCommunityIcons, name: 'server', type: 'material' },
+      'AI': { Component: MaterialCommunityIcons, name: 'robot', type: 'material' },
+      'BBAI': { Component: MaterialCommunityIcons, name: 'robot-outline', type: 'material' },
+      'SOUN': { Component: MaterialCommunityIcons, name: 'waveform', type: 'material' },
+      'IONQ': { Component: MaterialCommunityIcons, name: 'atom', type: 'material' },
+      'RGTI': { Component: MaterialCommunityIcons, name: 'integrated-circuit-chip', type: 'material' },
+      'QBTS': { Component: MaterialCommunityIcons, name: 'atom-variant', type: 'material' },
+
+      // ETFs
+      'SPY': { Component: MaterialIcons, name: 'show-chart', type: 'material' },
+      'VOO': { Component: MaterialIcons, name: 'show-chart', type: 'material' },
+      'QQQ': { Component: MaterialIcons, name: 'show-chart', type: 'material' },
+      'VTI': { Component: MaterialIcons, name: 'show-chart', type: 'material' },
+      'IWM': { Component: MaterialIcons, name: 'show-chart', type: 'material' },
+      'ARKK': { Component: MaterialCommunityIcons, name: 'rocket-launch-outline', type: 'material' },
     };
     
     // Return specific icon if available

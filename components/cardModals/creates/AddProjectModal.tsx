@@ -196,7 +196,7 @@ export function AddProjectModal({ open, onOpenChange, isDark }: AddProjectModalP
             autoCapitalize="sentences"
             fontSize={isIpad() ? 17 : 15}
             fontFamily="$body"
-            fontWeight="bold"
+            fontWeight="500"
             color={isDark ? '#f6f6f6' : '#111'}
             backgroundColor={isDark ? 'rgba(255,255,255,0.0)' : 'rgba(0,0,0,0.0)'}
             borderWidth={1}
@@ -211,14 +211,14 @@ export function AddProjectModal({ open, onOpenChange, isDark }: AddProjectModalP
               value={deadline}
               onChange={e => setDeadline(e.currentTarget.value)}
               style={{
-                width: '100%',
+                width: '96%',
                 padding: '12px 16px',
                 border: `1px solid ${isDark ? 'rgba(255,255,255,0.2)' : 'rgba(0,0,0,0.1)'}`,
                 borderRadius: '8px',
-                backgroundColor: isDark ? 'rgba(255,255,255,0.05)' : 'rgba(255,255,255,0.8)',
-                color: isDark ? '#f6f6f6' : '#111',
+                backgroundColor: isDark ? 'rgba(0, 0, 0, 0.05)' : 'rgba(255,255,255,0.8)',
+                color: isDark ? '#a1a1a1' : '#111',
                 fontSize: '15px',
-                fontFamily: 'inherit',
+                fontFamily: '$body',
                 fontWeight: '500',
                 outline: 'none',
                 transition: 'all 0.2s ease',
@@ -304,7 +304,7 @@ export function AddProjectModal({ open, onOpenChange, isDark }: AddProjectModalP
             numberOfLines={8}
             fontSize={isIpad() ? 17 : 15}
             fontFamily="$body"
-            fontWeight="bold"
+            fontWeight="500"
             color={isDark ? '#f6f6f6' : '#111'}
             backgroundColor={isDark ? 'rgba(255,255,255,0.0)' : 'rgba(0,0,0,0.0)'}
             borderWidth={1}

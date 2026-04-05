@@ -2,8 +2,8 @@ import { useState, useEffect, useRef } from 'react';
 import { useNetworkStore } from '@/store';
 import { getWifiDetails } from '@/services';
 
-const CHECK_INTERVAL = 1000 * 60; 
-const CONNECTION_TEST_TIMEOUT = 10000; // Increased timeout for larger download 
+const CHECK_INTERVAL = 1000 * 60;
+const CONNECTION_TEST_TIMEOUT = 5000;
 
 export function useNetworkSpeed() {
   const { details, isLoading, fetchNetworkInfo, startNetworkListener } = useNetworkStore();
@@ -47,7 +47,7 @@ export function useNetworkSpeed() {
 
   const measureThroughput = async (): Promise<number> => {
     // Use a larger test file for throughput measurement
-    const testFileUrl = 'https://speed.cloudflare.com/__down?bytes=10485760'; // 10MB test file
+    const testFileUrl = 'https://speed.cloudflare.com/__down?bytes=2097152'; // 2MB test file
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), CONNECTION_TEST_TIMEOUT);
     
@@ -65,7 +65,7 @@ export function useNetworkSpeed() {
       
       // Get content length from headers or use known size
       const contentLength = response.headers.get('content-length');
-      const fileSizeBytes = contentLength ? parseInt(contentLength, 10) : 10485760; // Default 10MB
+      const fileSizeBytes = contentLength ? parseInt(contentLength, 10) : 2097152; // Default 2MB
       
       // Download the file
       const data = await response.arrayBuffer();

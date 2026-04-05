@@ -87,13 +87,43 @@ export const NotificationTimePicker: React.FC<NotificationTimePickerProps> = ({
 
       {showTimePicker && (
         <YStack gap={12} paddingVertical={16}>
-          <DateTimePicker
-            value={tempTime || notificationTime || new Date()}
-            mode="time"
-            display={Platform.OS === 'ios' ? 'spinner' : 'default'}
-            onChange={handleTimeChange}
-            style={{ width: '100%' }}
-          />
+          {Platform.OS === 'web' ? (
+            <input
+              type="time"
+              defaultValue={
+                tempTime || notificationTime
+                  ? format(tempTime || notificationTime || new Date(), 'HH:mm')
+                  : format(new Date(), 'HH:mm')
+              }
+              onChange={(e: any) => {
+                const [hours, minutes] = e.target.value.split(':').map(Number);
+                const d = new Date();
+                d.setHours(hours, minutes, 0, 0);
+                setTempTime(d);
+              }}
+              style={{
+                width: '95%',
+                maxWidth: '95%',
+                boxSizing: 'border-box' as any,
+                height: 44,
+                borderRadius: 8,
+                border: `1px solid ${isDark ? 'rgba(255,255,255,0.2)' : 'rgba(0,0,0,0.2)'}`,
+                backgroundColor: isDark ? 'rgba(0,0,0,0.3)' : 'rgba(0,0,0,0.05)',
+                color: isDark ? '#fff' : '#000',
+                fontSize: 16,
+                paddingLeft: 12,
+                paddingRight: 12,
+              }}
+            />
+          ) : (
+            <DateTimePicker
+              value={tempTime || notificationTime || new Date()}
+              mode="time"
+              display={Platform.OS === 'ios' ? 'spinner' : 'default'}
+              onChange={handleTimeChange}
+              style={{ width: '100%' }}
+            />
+          )}
           <XStack gap={8} justifyContent="flex-end" paddingTop={8}>
             <Button
               onPress={handleTimeCancel}

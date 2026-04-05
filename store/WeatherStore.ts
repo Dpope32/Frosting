@@ -116,11 +116,14 @@ async function fetchForecastWithCoordinates(location: { latitude: number; longit
       const hourlyData = await hourlyResponse.json();
 
       
-      // Store hourly periods in state
+      // Store hourly periods in state and use the first hourly period as the current temp
       if (hourlyData.properties && Array.isArray(hourlyData.properties.periods)) {
-
-        // Save all hourly periods
-        useWeatherStore.setState({ hourlyForecast: hourlyData.properties.periods });
+        const hourlyPeriods = hourlyData.properties.periods;
+        useWeatherStore.setState({ hourlyForecast: hourlyPeriods });
+        // Set currentTemp from the first hourly period (actual current temperature)
+        if (hourlyPeriods.length > 0) {
+          useWeatherStore.setState({ currentTemp: hourlyPeriods[0].temperature });
+        }
       }
     } catch (error) {
       console.error('[WeatherStore] Error fetching hourly forecast:', error);

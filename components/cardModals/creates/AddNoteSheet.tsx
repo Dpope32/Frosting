@@ -451,6 +451,7 @@ export function AddNoteSheet({
                 fontFamily="$body"  
                 ellipsizeMode="tail"
                 color={isDark ? "#fff" : "#1f2937"}
+                marginLeft={isWeb ? 8 : 0}
                 style={{ 
                   flex: 1, 
                   paddingHorizontal: isWeb ? 8 : 6, 
@@ -485,6 +486,7 @@ export function AddNoteSheet({
           )}
           <Button
             size={isWeb ? "$2.5" : Platform.OS === 'web' ? "$2" : "$2"} 
+            marginRight={isWeb ? 8 : 0}
             circular
             icon={<MaterialIcons name="close" size={isWeb ? 22 : Platform.OS === 'web' ? 18 : 22} color={isDark ? "#fff" : "#374151"} />}
             onPress={handleCloseModal}
@@ -694,7 +696,7 @@ export function AddNoteSheet({
                         }}
                         borderWidth={isDark ? 1.5 : 0}
                         borderColor={isDark ? "rgba(10, 132, 255, 0.4)" : "transparent"}
-                        width="100%"
+                        width={isWeb ? "95%" : "100%"}
                         shadowColor={isDark ? "rgba(10, 132, 255, 0.3)" : `${preferences.primaryColor}50`}
                         shadowOffset={{ width: 0, height: isWeb ? 4 : 3 }}
                         shadowOpacity={isDark ? 0.4 : 0.4}

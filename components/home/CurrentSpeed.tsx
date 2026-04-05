@@ -1,5 +1,4 @@
 import React from "react";
-import { Platform } from "react-native";
 import { YStack, Text, Spinner } from "tamagui";
 import Animated, { SlideInDown } from "react-native-reanimated";
 
@@ -15,7 +14,8 @@ export function CurrentSpeed({
   isDark,
   showLoading,
 }: CurrentSpeedProps): JSX.Element | null {
-  const { speed, isLoading } = useNetworkSpeed();
+  const { speed } = useNetworkSpeed();
+  const isActuallyLoading = showLoading || !speed;
   return (
     <Animated.View entering={SlideInDown.duration(500).delay(0)}>
       <YStack
@@ -35,7 +35,7 @@ export function CurrentSpeed({
         >
           Current Speed
         </Text>
-        {showLoading ? (
+        {isActuallyLoading ? (
           <YStack alignItems="center" mt="$2">
             <Spinner size="small" color="$gray10" />
             <Text
@@ -55,8 +55,7 @@ export function CurrentSpeed({
             mt="$2"
             fontFamily="$body"
           >
-            {speed ||
-              (__DEV__ ? "89 ms" : Platform.OS === "web" ? "80 ms" : "75 ms")}
+            {speed}
           </Text>
         )}
       </YStack>
